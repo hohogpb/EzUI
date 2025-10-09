@@ -29,8 +29,6 @@ EzUIWindow::EzUIWindow(HINSTANCE hInst) {
 EzUIWindow::~EzUIWindow() {
 }
 
-
-
 LRESULT CALLBACK EzUIWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
   EzUIWindow* pThis = NULL;
   if (::IsWindow(hWnd)) {

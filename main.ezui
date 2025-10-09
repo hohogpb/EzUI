@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollViewer verticalScrollBarVisibility="true" horizontalScrollBarVisibility="false" dataContext="CompleteDemoViewModel">
+    <StackPanel spacing="12">
+        <!-- 统一滚动系统演示标题 -->
+        <BindableTextBlock text="🎯 统一滚动系统 MVVM 演示123" fontPx="28" textColor="#FF000080"/>
+        
+        <Grid rows="1" columns="2" width="600" height="30">
+            <Button row="0" column="0" id="helpButton" text="显示/隐藏帮助" fontPx="12" width="180"/>
+            <TextBlock row="0" column="1" text="← 点击查看 Popover 示例 (自动定位)" fontPx="12" textColor="#FF666666"/>
+        </Grid>
+        
+        <!-- 添加一个 hover 触发的 Popover 示例 -->
+        <Grid rows="1" columns="2" width="600" height="30">
+            <TextBlock row="0" column="0" id="hoverTrigger" text="🖱️ 悬停显示提示" fontPx="14" textColor="#FF0066CC" width="200"/>
+            <TextBlock row="0" column="1" text="← 鼠标悬停查看效果" fontPx="12" textColor="#FF666666"/>
+        </Grid>
+        
+        <BindableTextBlock text="✅ 展示 ScrollViewer + SimpleListBox 的统一滚动架构！" fontPx="16" textColor="#FF008000"/>
+        
+        <!-- 用户信息区域 -->
+        <BindableTextBlock text="📋 用户信息 (实时数据绑定):" fontPx="18" textColor="#FF800080"/>
+        
+        <Grid rows="4" columns="2" width="450" height="120">
+            <TextBlock row="0" column="0" text="姓名:" fontPx="14" textColor="#FF000000"/>
+            <BindableTextBlock row="0" column="1" textBinding="UserName" fontPx="14" textColor="#FFFF0000"/>
+            
+            <TextBlock row="1" column="0" text="年龄:" fontPx="14" textColor="#FF000000"/>
+            <BindableTextBlock row="1" column="1" textBinding="UserAge" fontPx="14" textColor="#FFFF0000"/>
+            
+            <TextBlock row="2" column="0" text="状态:" fontPx="14" textColor="#FF000000"/>
+            <BindableTextBlock row="2" column="1" textBinding="Status" fontPx="14" textColor="#FF008000"/>
+            
+            <TextBlock row="3" column="0" text="最后更新:" fontPx="14" textColor="#FF000000"/>
+            <BindableTextBlock row="3" column="1" textBinding="LastUpdate" fontPx="12" textColor="#FF808080"/>
+        </Grid>
+        
+        <!-- 计数器和统计信息 -->
+        <BindableTextBlock text="📊 实时统计 (自动更新):" fontPx="18" textColor="#FF800080"/>
+        
+        <Grid rows="2" columns="2" width="450" height="60">
+            <TextBlock row="0" column="0" text="点击计数:" fontPx="14"/>
+            <BindableTextBlock row="0" column="1" textBinding="Counter" fontPx="16" textColor="#FFFF8000"/>
+            
+            <TextBlock row="1" column="0" text="总操作数:" fontPx="14"/>
+            <BindableTextBlock row="1" column="1" textBinding="OperationCount" fontPx="16" textColor="#FF0000FF"/>
+        </Grid>
+        
+        <!-- EditBox 输入框演示 -->
+        <BindableTextBlock text="✏️ EditBox 输入框演示:" fontPx="18" textColor="#FF800080"/>
+        <TextBlock text="• 点击获取焦点，直接键入；支持选择、拖拽选择、Ctrl+A、左右/Home/End、退格/Delete、光标自动可见" fontPx="11" textColor="#FF808080" width="700"/>
+        
+        <Grid rows="2" columns="2" width="720" height="80">
+            <TextBlock row="0" column="0" text="普通输入：" fontPx="14" textColor="#FF000000"/>
+            <TextBox row="0" column="1" width="520" height="28" fontSize="14" textBinding="UserName"/>
+            
+            <TextBlock row="1" column="0" text="占位提示：" fontPx="14" textColor="#FF000000"/>
+            <TextBox row="1" column="1" width="520" height="28" fontSize="14" placeholder="请输入内容..." textBinding="Description"/>
+        </Grid>
+        
+        <!-- 动态描述 -->
+        <BindableTextBlock textBinding="Description" fontPx="14" textColor="#FF006400" width="600"/>
+        
+        <!-- 操作按钮组 -->
+        <BindableTextBlock text="🎮 交互操作 (XML命令绑定):" fontPx="18" textColor="#FF800080"/>
+        
+        <Grid rows="3" columns="2" width="500" height="120">
+            <Button row="0" column="0" text="增加计数器 (+1)" fontPx="12" width="200" onClick="IncrementCounter"/>
+            <Button row="0" column="1" text="切换在线状态" fontPx="12" width="200" onClick="ToggleStatus"/>
+            <Button row="1" column="0" text="更新用户信息" fontPx="12" width="200" onClick="UpdateUserInfo"/>
+            <Button row="1" column="1" text="刷新当前时间" fontPx="12" width="200" onClick="RefreshTime"/>
+            <Button row="2" column="0" text="重置所有数据" fontPx="12" onClick="ResetData" width="200"/>
+            <Button row="2" column="1" text="随机更新数据" fontPx="12" onClick="RandomUpdate" width="200"/>
+        </Grid>
+        
+        <!-- ============ 统一滚动系统演示区域 ============ -->
+        <BindableTextBlock text="🔄 统一滚动系统演示 (ScrollViewer + SimpleListBox):" fontPx="18" textColor="#FF800080"/>
+        
+        <!-- 滚动列表演示容器 -->
+        <Grid rows="1" columns="2" width="600" height="280">
+            
+            <!-- 左侧：水果选择器 (使用 ScrollViewer + SimpleListBox) -->
+            <StackPanel row="0" column="0" spacing="8">
+                <BindableTextBlock text="🍎 水果选择器 (ScrollViewer + SimpleListBox):" fontPx="16" textColor="#FF006400"/>
+                <ScrollViewer width="280" height="150" verticalScrollBarVisibility="true" horizontalScrollBarVisibility="false">
+                    <SimpleListBox 
+                        itemsBinding="FruitList" 
+                        onSelectionChanged="OnFruitSelectionChanged"
+                        backgroundColor="#FFFAFAFA" 
+                        selectedColor="#FF32CD32"
+                        selectedTextColor="#FFFFFFFF"
+                        hoverColor="#FFE8F5E8"
+                        borderColor="#FF32CD32"
+                        fontPx="14"/>
+                </ScrollViewer>
+                <BindableTextBlock textBinding="SelectedFruit" fontPx="12" textColor="#FF006400" width="280"/>
+                <Grid rows="1" columns="2" width="280" height="35">
+                    <Button row="0" column="0" text="添加水果" onClick="AddFruit" fontPx="11" width="135" height="30"/>
+                    <Button row="0" column="1" text="清空列表" onClick="ClearFruits" fontPx="11" width="135" height="30"/>
+                </Grid>
+            </StackPanel>
+            
+            <!-- 右侧：颜色选择器 (使用 ScrollViewer + SimpleListBox) -->
+            <StackPanel row="0" column="1" spacing="8">
+                <BindableTextBlock text="🎨 颜色选择器 (ScrollViewer + SimpleListBox):" fontPx="16" textColor="#FF000080"/>
+                <ScrollViewer width="280" height="150" verticalScrollBarVisibility="true" horizontalScrollBarVisibility="false">
+                    <SimpleListBox 
+                        itemsBinding="ColorList" 
+                        onSelectionChanged="OnColorSelectionChanged"
+                        backgroundColor="#FFFAFAFA" 
+                        selectedColor="#FF9370DB"
+                        selectedTextColor="#FFFFFFFF"
+                        hoverColor="#FFF0E8FF"
+                        borderColor="#FF9370DB"
+                        fontPx="14"/>
+                </ScrollViewer>
+                <BindableTextBlock textBinding="SelectedColor" fontPx="12" textColor="#FF000080" width="280"/>
+                <TextBlock text="• 点击列表项查看选择效果" fontPx="10" textColor="#FF808080" width="280"/>
+            </StackPanel>
+            
+        </Grid>
+        
+        <!-- Popover 功能说明 -->
+        <BindableTextBlock text="🎈 Popover 功能特性:" fontPx="16" textColor="#FF800080"/>
+        <TextBlock text="• XML 配置支持：triggerElement、triggerEvent、autoPosition" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 触发事件类型：click（点击）、hover（悬停）、focus（聚焦）" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 自动定位：相对触发器元素自动计算位置" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 精确偏移：支持 offsetX/offsetY 微调位置" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 智能关闭：点击外部自动关闭，支持嵌套 Popover" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 样式定制：支持背景色、边框、圆角、内边距等" fontPx="11" textColor="#FF808080"/>
+        
+        <!-- 统一滚动系统特性说明 -->
+        <BindableTextBlock text="💡 统一滚动系统特性说明:" fontPx="14" textColor="#FF800080"/>
+        <TextBlock text="• 使用 ScrollViewer 包装 SimpleListBox，实现统一的滚动体验" fontPx="10" textColor="#FF808080"/>
+        <TextBlock text="• 每个列表都有独立的焦点系统，点击不同列表设置对应焦点" fontPx="10" textColor="#FF808080"/>
+        <TextBlock text="• 鼠标滚轮会滚动当前有焦点的 ScrollViewer" fontPx="10" textColor="#FF808080"/>
+        <TextBlock text="• 支持键盘导航: ↑↓方向键、Home/End 键" fontPx="10" textColor="#FF808080"/>
+        <TextBlock text="• 支持鼠标拖拽滚动条，即使鼠标移出滚动条范围也能继续拖拽" fontPx="10" textColor="#FF808080"/>
+        <TextBlock text="• SimpleListBox 专注于列表逻辑，ScrollViewer 负责滚动功能" fontPx="10" textColor="#FF808080"/>
+        
+        <!-- 交互说明 -->
+        <BindableTextBlock text="🖱️ 交互说明:" fontPx="16" textColor="#FF800080"/>
+        <TextBlock text="• 点击不同的列表框来切换焦点" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 鼠标滚轮会滚动当前有焦点的列表" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 可以拖拽滚动条进行快速定位" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 使用键盘方向键进行精确导航" fontPx="11" textColor="#FF808080"/>
+        
+        <!-- 系统状态 -->
+        <BindableTextBlock text="⚡ 系统状态:" fontPx="18" textColor="#FF800080"/>
+        <BindableTextBlock textBinding="SystemStatus" fontPx="12" textColor="#FF0000FF" width="600"/>
+        
+        <!-- 当前时间显示 -->
+        <BindableTextBlock textBinding="CurrentTime" fontPx="14" textColor="#FF000080"/>
+        
+        <!-- 技术说明 -->
+        <BindableTextBlock text="🛠️ 技术架构说明:" fontPx="16" textColor="#FF800080"/>
+        <TextBlock text="• 完整的 MVVM 架构：Model-View-ViewModel" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 统一的滚动系统：ScrollViewer 作为通用滚动容器" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 智能的 Popover 系统：XML 配置 + 自动触发器关联" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 焦点管理系统：智能的鼠标滚轮事件分发" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 事件冒泡系统：高效的命令处理和事件传播" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 数据绑定系统：实时的双向数据同步" fontPx="11" textColor="#FF808080"/>
+        <TextBlock text="• 按 F5 重新加载 XML 文件" fontPx="11" textColor="#FF808080"/>
+        
+        <!-- 版权信息 -->
+        <TextBlock text="🚀 EzDirectUI - 统一滚动系统 C++ MVVM 框架演示 v2.1 (含增强 Popover)" fontPx="10" textColor="#FF696969"/>
+    </StackPanel>
+</ScrollViewer>

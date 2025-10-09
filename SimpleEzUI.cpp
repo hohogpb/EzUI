@@ -2,7 +2,6 @@
 //
 
 #include "pch.h"
-#include "framework.h"
 #include "SimpleEzUI.h"
 #include "EzUIAppWindow.h"
 #include "EzUIWindow.h"
