@@ -2,6 +2,8 @@
 
 #define EZUI_WND_CLASS	L"EZUI_WND_CLASS"
 
+#include <common/signal.h>
+
 class EzUIWindow {
 public:
   EzUIWindow(HINSTANCE hInst);
@@ -28,6 +30,20 @@ public:
   void Create(int x = CW_USEDEFAULT, int y = 0, int width = CW_USEDEFAULT, int height = 0, HWND parent = nullptr);
 
   HWND GetHwnd() const { return mWnd; }
+
+  Signal<EzUIWindow*> Created;
+  Signal<EzUIWindow*> Destoryed;
+  Signal<EzUIWindow*, HDC> Draw;
+  Signal<EzUIWindow*, int, int> Resized;
+  Signal<EzUIWindow*, int, int> VScrolled;
+  Signal<EzUIWindow*, int, int> HScrolled;
+  Signal<EzUIWindow*, int> MouseWheeled;
+  Signal<EzUIWindow*, UINT> KeyDown;
+  Signal<EzUIWindow*, int, int> MouseMoved;
+  Signal<EzUIWindow*, int, int> LButtonDown;
+  Signal<EzUIWindow*, int, int> LButtonUp;
+  Signal<EzUIWindow*, int, int> MouseLeaved;
+
 protected:
   HWND mWnd;
   HINSTANCE mInst;

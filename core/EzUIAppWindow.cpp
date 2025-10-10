@@ -151,6 +151,7 @@ void EzUIAppWindow::OnCreate() {
 }
 
 void EzUIAppWindow::OnSize(int width, int height) {
+  Resized.emit(this);
 #if 0
   RECT rcClient;
   GetClientRect(m_hWnd, &rcClient);

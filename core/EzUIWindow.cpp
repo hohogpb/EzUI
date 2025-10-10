@@ -115,41 +115,52 @@ LRESULT CALLBACK EzUIWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 }
 
 void EzUIWindow::OnCreate() {
+  Created.emit(this);
 }
 
 void EzUIWindow::OnDestroy() {
+  Destoryed.emit(this);
 }
 
 void EzUIWindow::OnPaint(HDC hdc) {
   TextOut(hdc, 10, 10, L"Hello, EzUIWindow!", 18);
+  Draw.emit(this, hdc);
 }
 
 void EzUIWindow::OnSize(int width, int height) {
+  Resized.emit(this, width, height);
 }
 
 void EzUIWindow::OnVScroll(int pos, int flags) {
+  VScrolled.emit(this, pos, flags);
 }
 
 void EzUIWindow::OnHScroll(int pos, int flags) {
+  HScrolled.emit(this, pos, flags);
 }
 
 void EzUIWindow::OnMouseWheel(int delta) {
+  MouseWheeled.emit(this, delta);
 }
 
 void EzUIWindow::OnKeyDown(UINT vKey) {
+  KeyDown.emit(this, vKey);
 }
 
 void EzUIWindow::OnMouseMove(int x, int y) {
+  MouseMoved.emit(this, x, y);
 }
 
 void EzUIWindow::OnLButtonDown(int x, int y) {
+  LButtonDown.emit(this, x, y);
 }
 
 void EzUIWindow::OnLButtonUp(int x, int y) {
+  LButtonUp.emit(this, x, y);
 }
 
 void EzUIWindow::OnMouseLeave() {
-
+  MouseLeaved.emit(this, 0, 0);
 }
 
 void EzUIWindow::Create(int x, int y, int width, int height, HWND parent) {

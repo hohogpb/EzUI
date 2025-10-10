@@ -135,6 +135,8 @@
   <ItemGroup>
     <ClInclude Include="core\EzUIAppWindow.h" />
     <ClInclude Include="core\EzUIWindow.h" />
+    <ClInclude Include="core\EzUIApp.h" />
+    <ClInclude Include="layout-engine\EngineRender.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -146,6 +148,8 @@
   <ItemGroup>
     <ClCompile Include="core\EzUIAppWindow.cpp" />
     <ClCompile Include="core\EzUIWindow.cpp" />
+    <ClCompile Include="core\EzUIApp.cpp" />
+    <ClCompile Include="layout-engine\EngineRender.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

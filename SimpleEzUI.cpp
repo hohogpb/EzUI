@@ -3,8 +3,10 @@
 
 #include "pch.h"
 #include "SimpleEzUI.h"
+#include "core/EzUIApp.h"
 #include "core/EzUIAppWindow.h"
 #include "core/EzUIWindow.h"
+#include "layout-engine/EngineRender.h"
 
 EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
@@ -16,6 +18,8 @@ static void CreateWindows(HINSTANCE hInstance) {
     RECT rect = appWnd->GetClientRect();
 
     mainWindow = new EzUIWindow(hInstance);
+    mainWindow->Draw += EngineRender;
+
     mainWindow->Create(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, appWnd->GetHwnd());
 
     SetFocus(mainWindow->GetHwnd());
@@ -32,23 +36,11 @@ static void CreateWindows(HINSTANCE hInstance) {
   appWindow->Create();
 }
 
-
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
   CreateWindows(hInstance);
 
-  HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SIMPLEEZUI));
-
-  MSG msg;
-
-  // 主消息循环:
-  while (GetMessage(&msg, nullptr, 0, 0)) {
-    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-    }
-  }
-
-  return (int)msg.wParam;
+  EzUIApp app(hInstance);
+  return app.Run();
 }
 
 
