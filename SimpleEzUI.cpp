@@ -3,21 +3,38 @@
 
 #include "pch.h"
 #include "SimpleEzUI.h"
-#include "EzUIAppWindow.h"
-#include "EzUIWindow.h"
+#include "core/EzUIAppWindow.h"
+#include "core/EzUIWindow.h"
 
-// 全局变量:
-HINSTANCE hInst;
-
+EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
 
-int APIENTRY wWinMain(HINSTANCE hInstance,
-  HINSTANCE hPrevInstance,
-  LPWSTR lpCmdLine,
-  int nCmdShow) {
+static void CreateWindows(HINSTANCE hInstance) {
+  appWindow = new EzUIAppWindow(hInstance);
 
-  EzUIAppWindow wnd(hInstance);
-  wnd.Create();
+  appWindow->Created += [&](EzUIAppWindow* appWnd) {
+    RECT rect = appWnd->GetClientRect();
+
+    mainWindow = new EzUIWindow(hInstance);
+    mainWindow->Create(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, appWnd->GetHwnd());
+
+    SetFocus(mainWindow->GetHwnd());
+  };
+
+  appWindow->Resized += [&](EzUIAppWindow* appWnd) {
+    if (mainWindow) {
+      RECT rect = appWnd->GetClientRect();
+      SetWindowPos(mainWindow->GetHwnd(), NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER);
+      UpdateWindow(mainWindow->GetHwnd());
+    }
+  };
+
+  appWindow->Create();
+}
+
+
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+  CreateWindows(hInstance);
 
   HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SIMPLEEZUI));
 
@@ -33,6 +50,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   return (int)msg.wParam;
 }
+
+
 
 
 

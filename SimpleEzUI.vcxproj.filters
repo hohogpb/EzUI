@@ -30,10 +30,16 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EzUIWindow.h">
+    <ClInclude Include="core\EzUIWindow.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EzUIAppWindow.h">
+    <ClInclude Include="core\EzUIAppWindow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\signal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\signal_dispatcher.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +50,16 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="EzUIAppWindow.cpp">
+    <ClCompile Include="core\EzUIAppWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="EzUIWindow.cpp">
+    <ClCompile Include="core\EzUIWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\signal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\signal_dispatcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

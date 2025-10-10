@@ -108,6 +108,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,23 +133,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="EzUIAppWindow.h" />
-    <ClInclude Include="EzUIWindow.h" />
+    <ClInclude Include="core\EzUIAppWindow.h" />
+    <ClInclude Include="core\EzUIWindow.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="common\signal.h" />
+    <ClInclude Include="common\signal_dispatcher.h" />
     <ClInclude Include="SimpleEzUI.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EzUIAppWindow.cpp" />
-    <ClCompile Include="EzUIWindow.cpp" />
+    <ClCompile Include="core\EzUIAppWindow.cpp" />
+    <ClCompile Include="core\EzUIWindow.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="common\signal.cpp" />
+    <ClCompile Include="common\signal_dispatcher.cpp" />
     <ClCompile Include="SimpleEzUI.cpp" />
   </ItemGroup>
   <ItemGroup>

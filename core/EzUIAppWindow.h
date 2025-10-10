@@ -1,5 +1,7 @@
 #pragma once
 
+#include <common/signal.h>
+
 #define EZUI_APPWND_CLASS	L"EZUI_APPWND_CLASS"
 
 class EzUIAppWindow {
@@ -14,11 +16,15 @@ protected:
   virtual void OnCreate();
   virtual void OnDestroy();
   virtual void OnSize(int width, int height);
-  
+
 public:
   void Create(int x = CW_USEDEFAULT, int y = 0, int width = CW_USEDEFAULT, int height = 0);
 
   HWND GetHwnd() const { return mWnd; }
+  RECT GetClientRect();
+
+  Signal<EzUIAppWindow*> Created;
+  Signal<EzUIAppWindow*> Resized;
 protected:
   HWND mWnd;
   HINSTANCE mInst;

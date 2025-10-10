@@ -124,6 +124,7 @@ LRESULT CALLBACK EzUIAppWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam,
 }
 
 void EzUIAppWindow::OnCreate() {
+  Created.emit(this);
 #if 0
   RECT rect;
   GetClientRect(hWnd, &rect);
@@ -185,4 +186,13 @@ void EzUIAppWindow::Create(int x, int y, int width, int height) {
     x, y, width, height, NULL, NULL, mInst, (LPVOID)this);
   ShowWindow(mWnd, SW_SHOW);
   UpdateWindow(mWnd);
+}
+
+RECT EzUIAppWindow::GetClientRect() {
+  if (mWnd) {
+    RECT rect;
+    ::GetClientRect(mWnd, &rect);
+    return rect;
+  }
+  return RECT();
 }

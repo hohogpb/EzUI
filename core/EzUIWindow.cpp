@@ -17,7 +17,7 @@ EzUIWindow::EzUIWindow(HINSTANCE hInst) {
     // wc.cbWndExtra = sizeof(LONG_PTR); // Îª GWLP_USERDATA Ô¤Áô¿Õ¼ä
     wc.hInstance = mInst;
     wc.hIcon = NULL;
-    wc.hCursor = NULL/*LoadCursor(NULL, IDC_ARROW)*/;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.lpszMenuName = NULL;
     wc.lpszClassName = EZUI_WND_CLASS;
