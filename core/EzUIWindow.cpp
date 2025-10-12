@@ -109,6 +109,12 @@ LRESULT CALLBACK EzUIWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LP
   case WM_LBUTTONUP:
     pThis->OnLButtonUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     return 0;
+  case WM_CHAR:
+    pThis->OnChar((TCHAR)wParam);
+    return 0;
+  case WM_TIMER:
+    pThis->OnTimer((UINT)wParam);
+    return 0;
   }
 
   return DefWindowProc(hWnd, uMessage, wParam, lParam);
@@ -163,7 +169,30 @@ void EzUIWindow::OnMouseLeave() {
   MouseLeaved.emit(this, 0, 0);
 }
 
+void EzUIWindow::OnChar(UINT vChar) {
+  CharInputed.emit(this, vChar);
+}
+
+void EzUIWindow::OnTimer(UINT timerId) {
+  TimerCalled.emit(this, timerId);
+}
+
 void EzUIWindow::Create(int x, int y, int width, int height, HWND parent) {
   mWnd = CreateWindow(EZUI_WND_CLASS, L"ezui_window", WS_CHILD | WS_VISIBLE,
     x, y, width, height, parent, NULL, mInst, (LPVOID)this);
+}
+
+void EzUIWindow::Invalidate(bool erase) {
+  if (mWnd) {
+    InvalidateRect(mWnd, nullptr, erase ? TRUE : FALSE);
+  }
+}
+
+RECT EzUIWindow::GetClientRect() {
+  if (mWnd) {
+    RECT rect;
+    ::GetClientRect(mWnd, &rect);
+    return rect;
+  }
+  return RECT();
 }

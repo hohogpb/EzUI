@@ -26,10 +26,15 @@ protected:
   virtual void OnLButtonUp(int x, int y);
   virtual void OnMouseLeave();
 
+  virtual void OnChar(UINT vChar);
+  virtual void OnTimer(UINT timerId);
+
 public:
   void Create(int x = CW_USEDEFAULT, int y = 0, int width = CW_USEDEFAULT, int height = 0, HWND parent = nullptr);
 
   HWND GetHwnd() const { return mWnd; }
+  RECT GetClientRect();
+  void Invalidate(bool erase = true);
 
   Signal<EzUIWindow*> Created;
   Signal<EzUIWindow*> Destoryed;
@@ -43,6 +48,9 @@ public:
   Signal<EzUIWindow*, int, int> LButtonDown;
   Signal<EzUIWindow*, int, int> LButtonUp;
   Signal<EzUIWindow*, int, int> MouseLeaved;
+  Signal<EzUIWindow*, UINT> CharInputed;
+  Signal<EzUIWindow*, UINT> TimerCalled;
+
 
 protected:
   HWND mWnd;

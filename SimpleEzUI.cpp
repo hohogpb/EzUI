@@ -19,6 +19,12 @@ static void CreateWindows(HINSTANCE hInstance) {
 
     mainWindow = new EzUIWindow(hInstance);
     mainWindow->Draw += EngineRender;
+    mainWindow->Created += EngineRenderInit;
+    mainWindow->Resized += EngineRenderResize;
+    mainWindow->CharInputed += EngineRenderCharInput;
+    mainWindow->KeyDown += EngineRenderKeyDown;
+    mainWindow->LButtonDown += EngineRenderLButtonDown;
+    mainWindow->TimerCalled += EngineRenderTimer;
 
     mainWindow->Create(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, appWnd->GetHwnd());
 
@@ -33,14 +39,27 @@ static void CreateWindows(HINSTANCE hInstance) {
     }
   };
 
+  appWindow->Activated += [&](EzUIAppWindow* appWnd, UINT status) {
+    if (status != WA_INACTIVE && mainWindow) {
+      SetFocus(mainWindow->GetHwnd());
+    }
+  };
+
   appWindow->Create();
 }
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+  HRESULT Hr = ::CoInitialize(NULL);
+  if (FAILED(Hr))  return 0;
+
   CreateWindows(hInstance);
 
   EzUIApp app(hInstance);
-  return app.Run();
+  int nRet = app.Run();
+
+  ::CoUninitialize();
+
+  return nRet;
 }
 
 

@@ -113,9 +113,7 @@ LRESULT CALLBACK EzUIAppWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam,
     }
     return 0;
     case WM_ACTIVATE:
-      if (LOWORD(wParam) != WA_INACTIVE) {
-        // SetFocus(pThis->m_view->wnd());
-      }
+      pThis->OnActivate(LOWORD(wParam));
       return 0;
     }
   }
@@ -176,6 +174,10 @@ void EzUIAppWindow::OnSize(int width, int height) {
     UpdateWindow(mainWindow->GetHwnd());
   }
 #endif
+}
+
+void EzUIAppWindow::OnActivate(UINT status) {
+  this->Activated.emit(this, status);
 }
 
 void EzUIAppWindow::OnDestroy() {
