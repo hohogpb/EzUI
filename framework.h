@@ -9,9 +9,13 @@
 #include <commctrl.h>
 #include <objbase.h> 
 
+// Direct2D 和 DirectWrite
 #include <dwrite.h>
 #include <d2d1.h>
-
+// 包装 COM 智能指针
+#include <wrl/client.h>
+// 输入法
+#include <imm.h>
 
 // C 运行时头文件
 #include <stdlib.h>
@@ -21,3 +25,6 @@
 
 #include <string>
 #include <algorithm>
+#include <vector>
+#include <functional>
+#include <iostream>

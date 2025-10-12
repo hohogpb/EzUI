@@ -129,7 +129,7 @@ void EzUIWindow::OnDestroy() {
 }
 
 void EzUIWindow::OnPaint(HDC hdc) {
-  TextOut(hdc, 10, 10, L"Hello, EzUIWindow!", 18);
+  // TextOut(hdc, 10, 10, L"Hello, EzUIWindow!", 18);
   Draw.emit(this, hdc);
 }
 

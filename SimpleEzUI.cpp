@@ -6,7 +6,8 @@
 #include "core/EzUIApp.h"
 #include "core/EzUIAppWindow.h"
 #include "core/EzUIWindow.h"
-#include "layout-engine/EngineRender.h"
+#include "layout-engine/EngineEditBoxRender.h"
+#include "layout-engine/EngineLayoutRender.h"
 
 EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
@@ -18,13 +19,20 @@ static void CreateWindows(HINSTANCE hInstance) {
     RECT rect = appWnd->GetClientRect();
 
     mainWindow = new EzUIWindow(hInstance);
-    mainWindow->Draw += EngineRender;
-    mainWindow->Created += EngineRenderInit;
-    mainWindow->Resized += EngineRenderResize;
-    mainWindow->CharInputed += EngineRenderCharInput;
-    mainWindow->KeyDown += EngineRenderKeyDown;
-    mainWindow->LButtonDown += EngineRenderLButtonDown;
-    mainWindow->TimerCalled += EngineRenderTimer;
+#if 0
+    mainWindow->Draw += EngineEditBoxRender;
+    mainWindow->Created += EngineEditBoxInit;
+    mainWindow->Resized += EngineEditBoxResize;
+    mainWindow->CharInputed += EngineEditBoxCharInput;
+    mainWindow->KeyDown += EngineEditBoxKeyDown;
+    mainWindow->TimerCalled += EngineEditBoxTimer;
+    mainWindow->LButtonDown += EngineEditBoxLButtonDown;
+    mainWindow->LButtonUp += EngineEditBoxLButtonUp;
+    mainWindow->MouseMoved += EngineEditBoxMouseMove;
+#endif
+    mainWindow->Created += EngineLayout_InitUILayout;
+    mainWindow->Resized += EngineLayout_Resize;
+    mainWindow->Draw += EngineLayout_RenderUI;
 
     mainWindow->Create(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, appWnd->GetHwnd());
 
@@ -51,6 +59,9 @@ static void CreateWindows(HINSTANCE hInstance) {
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
   HRESULT Hr = ::CoInitialize(NULL);
   if (FAILED(Hr))  return 0;
+
+  EngineLayout_InitGDIPlus();
+
 
   CreateWindows(hInstance);
 

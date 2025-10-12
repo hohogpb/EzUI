@@ -1,24 +1,26 @@
 ﻿#include "pch.h"
-#include "EngineRender.h"
-#include <imm.h>
-#pragma comment(lib, "imm32.lib")
+#include "EngineEditBoxRender.h" 
 
-ID2D1Factory* g_pD2DFactory = nullptr;
-ID2D1HwndRenderTarget* g_pRenderTarget = nullptr;
-ID2D1SolidColorBrush* g_pBrush = nullptr;
-IDWriteFactory* g_pDWriteFactory = nullptr;
-IDWriteTextFormat* g_pTextFormat = nullptr;
-IDWriteTextLayout* g_pTextLayout = nullptr;
+static ID2D1Factory* g_pD2DFactory = nullptr;
+static ID2D1HwndRenderTarget* g_pRenderTarget = nullptr;
+static ID2D1SolidColorBrush* g_pBrush = nullptr;
+static IDWriteFactory* g_pDWriteFactory = nullptr;
+static IDWriteTextFormat* g_pTextFormat = nullptr;
+static IDWriteTextLayout* g_pTextLayout = nullptr;
 
-std::wstring g_text = L"你好大哥\n啊手动阀手动阀;♥阿喀琉斯的风景啊啊是发生发生 heeloo world\n";
+static std::wstring g_text = L"你好大哥\n啊手动阀手动阀;♥阿喀琉斯的风景啊啊是发生发生 heeloo world\n";
 
-int g_textBoxWidth = 100; // 文本框宽度
-int g_textBoxHeight = 80;
+static int g_textBoxWidth = 100; // 文本框宽度
+static int g_textBoxHeight = 80;
 
-UINT32 g_cursorPos = 0;
-bool g_showCursor = true;
+static UINT32 g_cursorPos = 0;
+static bool g_showCursor = true;
 
-void EngineRenderInit(EzUIWindow* wnd) {
+static bool   g_isSelecting = false;     // 是否正在拖拽选择
+static UINT32 g_selectionStart = 0;      // 选区起始字符索引
+static UINT32 g_selectionEnd = 0;      // 选区结束字符索引
+
+void EngineEditBoxInit(EzUIWindow* wnd) {
   HWND hwnd = wnd->GetHwnd();
 
   // D2D
@@ -41,7 +43,7 @@ void EngineRenderInit(EzUIWindow* wnd) {
     DWRITE_FONT_WEIGHT_REGULAR,
     DWRITE_FONT_STYLE_NORMAL,
     DWRITE_FONT_STRETCH_NORMAL,
-    14.0f,
+    25.0f,
     L"zh-cn",
     &g_pTextFormat
   );
@@ -102,41 +104,7 @@ void UpdateIMEWindowPosition(HWND hwnd, IDWriteTextLayout* textLayout, UINT32 ca
   }
 }
 
-// helper: 将当前 caret 所在行的行首索引/行尾索引求出
-void GetLineStartEndFromCaret(IDWriteTextLayout* layout, UINT32 caretPos,
-  float layoutOffsetX, float layoutOffsetY, float layoutWidth,
-  UINT32& outLineStart, UINT32& outLineEnd) {
-  outLineStart = outLineEnd = caretPos;
-  if (!layout) return;
 
-  // 1) 获取 caret 的行位置（y）
-  DWRITE_HIT_TEST_METRICS hitMetrics;
-  FLOAT caretX = 0, caretY = 0;
-  HRESULT hr = layout->HitTestTextPosition(caretPos, FALSE, &caretX, &caretY, &hitMetrics);
-  if (FAILED(hr)) return;
-
-  // caretY 是相对于 layout 原点的 y，考虑 layoutOffset 后为客户端坐标
-  FLOAT lineY = caretY + layoutOffsetY;
-
-  // 2) 行首：x = very small (0) -> hitTest 得到行首字符位置
-  BOOL trailing = FALSE;
-  BOOL isInside = 0;
-  // 用一个很小的 x（相对于 layout 原点），不要用 ClientToScreen 等
-  hr = layout->HitTestPoint(0.0f, caretY + 1.0f, &trailing, &isInside, &hitMetrics);
-  if (SUCCEEDED(hr)) {
-    // 如果 trailing 为 true，pos 指示在字符之后（后缀），通常行首希望得到 pos (不加1)
-    outLineStart = hitMetrics.textPosition;
-  }
-
-  // 3) 行尾：用 x = layoutWidth - 1 或者很大的数
-  hr = layout->HitTestPoint(layoutWidth - 1.0f, caretY + 1.0f, &trailing, &isInside, &hitMetrics);
-  if (SUCCEEDED(hr)) {
-    // 如果 trailing 为 true，pos 指示字符之后，行尾通常为 pos (如果 trailing==false 可能需要 +1)
-    // 为保险起见，我们将行尾设为 pos + (trailing ? 0 : 1)
-    outLineEnd = trailing ? hitMetrics.textPosition : hitMetrics.textPosition + 1;
-    // 保证不超出文本长度
-  }
-}
 
 // -------------------- 更新文本布局 --------------------
 static void UpdateTextLayout(RECT rc) {
@@ -152,7 +120,8 @@ static void UpdateTextLayout(RECT rc) {
   );
 }
 
-void EngineRender(EzUIWindow* wnd, HDC hdc) {
+void EngineEditBoxRender(EzUIWindow* wnd, HDC hdc) {
+#if 0
   // 填充背景
   RECT clientRect;
   GetClientRect(wnd->GetHwnd(), &clientRect);
@@ -170,9 +139,45 @@ void EngineRender(EzUIWindow* wnd, HDC hdc) {
   int height = clientRect.bottom - clientRect.top;
   swprintf_s(sizeText, L"Size: %d x %d", width, height);
   DrawText(hdc, sizeText, -1, &clientRect, DT_LEFT | DT_TOP | DT_SINGLELINE);
+#endif
 
   g_pRenderTarget->BeginDraw();
   g_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+
+  if (g_selectionStart != g_selectionEnd) {
+    UINT32 selStart = min(g_selectionStart, g_selectionEnd);
+    UINT32 selEnd = max(g_selectionStart, g_selectionEnd);
+    UINT32 selLen = selEnd - selStart;
+
+    std::vector<DWRITE_HIT_TEST_METRICS> metrics(selLen);
+    UINT32 actualCount = 0;
+
+    // 获取选区的每个 glyph 的矩形
+    g_pTextLayout->HitTestTextRange(
+      selStart, selLen,
+      0, .0f, // 你 layout 的起点偏移
+      metrics.data(), (UINT32)metrics.size(),
+      &actualCount
+    );
+
+    ID2D1SolidColorBrush* selBrush = nullptr;
+    g_pRenderTarget->CreateSolidColorBrush(
+      D2D1::ColorF(D2D1::ColorF::SkyBlue, 0.5f),
+      &selBrush
+    );
+
+    for (UINT32 i = 0; i < actualCount; ++i) {
+      const auto& m = metrics[i];
+      D2D1_RECT_F rect = D2D1::RectF(
+        m.left, m.top,
+        m.left + m.width,
+        m.top + m.height
+      );
+      g_pRenderTarget->FillRectangle(rect, selBrush);
+    }
+    if (selBrush) selBrush->Release();
+  }
 
   // 绘制文本
   g_pRenderTarget->DrawTextLayout(D2D1::Point2F(0, 0), g_pTextLayout, g_pBrush);
@@ -184,8 +189,8 @@ void EngineRender(EzUIWindow* wnd, HDC hdc) {
     FLOAT x = 0, y = 0;
     g_pTextLayout->HitTestTextPosition(g_cursorPos, FALSE, &x, &y, &hit);
     g_pRenderTarget->DrawLine(
-      D2D1::Point2F(x , y ),
-      D2D1::Point2F(x , y  + hit.height),
+      D2D1::Point2F(x, y),
+      D2D1::Point2F(x, y + hit.height),
       g_pBrush, 1.0f
     );
   }
@@ -208,7 +213,7 @@ static void MoveCursorByClick(int mouseX, int mouseY) {
 }
 
 
-void EngineRenderResize(EzUIWindow* wnd, int width, int height) {
+void EngineEditBoxResize(EzUIWindow* wnd, int width, int height) {
   // 调整 RenderTarget 大小
   if (g_pRenderTarget) {
     D2D1_SIZE_U size = D2D1::SizeU(width, height);
@@ -221,7 +226,7 @@ void EngineRenderResize(EzUIWindow* wnd, int width, int height) {
 }
 
 
-void EngineRenderCharInput(EzUIWindow* wnd, UINT vChar) {
+void EngineEditBoxCharInput(EzUIWindow* wnd, UINT vChar) {
   if (vChar == VK_BACK && !g_text.empty() && g_cursorPos > 0) {
     g_text.erase(g_cursorPos - 1, 1);
     g_cursorPos--;
@@ -238,7 +243,7 @@ void EngineRenderCharInput(EzUIWindow* wnd, UINT vChar) {
   wnd->Invalidate(false);
 }
 
-void EngineRenderKeyDown(EzUIWindow* wnd, UINT vKey) {
+void EngineEditBoxKeyDown(EzUIWindow* wnd, UINT vKey) {
   if (vKey == VK_LEFT && g_cursorPos > 0) g_cursorPos--;
   if (vKey == VK_RIGHT && g_cursorPos < g_text.length()) g_cursorPos++;
   if (vKey == VK_DELETE) {
@@ -249,6 +254,7 @@ void EngineRenderKeyDown(EzUIWindow* wnd, UINT vKey) {
     }
   }
   if (vKey == VK_HOME) {
+#if 0
     if (g_pTextLayout) {
       UINT32 start, end;
       // 假设你在 DrawTextLayout 时是从 (5,5) 开始绘制
@@ -261,8 +267,10 @@ void EngineRenderKeyDown(EzUIWindow* wnd, UINT vKey) {
       UpdateTextLayout(wnd->GetClientRect());
       UpdateIMEWindowPosition(wnd->GetHwnd(), g_pTextLayout, g_cursorPos, 0.0f, 0.0f);
     }
+#endif
   }
   if (vKey == VK_END) {
+#if 0
     if (g_pTextLayout) {
       UINT32 start, end;
       float offsetX = .0f, offsetY = .0f;
@@ -274,18 +282,58 @@ void EngineRenderKeyDown(EzUIWindow* wnd, UINT vKey) {
       UpdateTextLayout(wnd->GetClientRect());
       UpdateIMEWindowPosition(wnd->GetHwnd(), g_pTextLayout, g_cursorPos, 0.0f, 0.0f);
     }
+#endif
   }
 
 
   wnd->Invalidate(false);
 }
 
-void EngineRenderLButtonDown(EzUIWindow* wnd, int x, int y) {
+void EngineEditBoxLButtonDown(EzUIWindow* wnd, int x, int y) {
+
+  SetCapture(wnd->GetHwnd());
+  g_isSelecting = true;
+
+  // 将点击坐标转换成字符索引
+  DWRITE_HIT_TEST_METRICS metrics = {};
+  BOOL isTrailing = FALSE;
+  BOOL isInside = FALSE;
+  g_pTextLayout->HitTestPoint(x, y, &isTrailing, &isInside, &metrics);
+
+  g_selectionStart = g_selectionEnd = metrics.textPosition + (isTrailing ? 1 : 0);
+  g_cursorPos = g_selectionEnd;
+
   MoveCursorByClick(x, y);
+  wnd->Invalidate(false);
+
+}
+
+void EngineEditBoxMouseMove(EzUIWindow* wnd, int x, int y) {
+
+  // && (wParam & MK_LBUTTON)
+  if (g_isSelecting) {
+    POINT pt = { x, y };
+    DWRITE_HIT_TEST_METRICS metrics = {};
+    BOOL isTrailing = FALSE, isInside = FALSE;
+
+    g_pTextLayout->HitTestPoint(pt.x, pt.y, &isTrailing, &isInside, &metrics);
+
+    g_selectionEnd = metrics.textPosition + (isTrailing ? 1 : 0);
+    g_cursorPos = g_selectionEnd;
+
+    wnd->Invalidate(false);
+  }
+
+}
+
+void EngineEditBoxLButtonUp(EzUIWindow* wnd, int x, int y) {
+  ReleaseCapture();
+  g_isSelecting = false;
+
   wnd->Invalidate(false);
 }
 
-void EngineRenderTimer(EzUIWindow* wnd, UINT timerId) {
+void EngineEditBoxTimer(EzUIWindow* wnd, UINT timerId) {
   g_showCursor = !g_showCursor;
   wnd->Invalidate(false);
 }

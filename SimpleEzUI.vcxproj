@@ -108,12 +108,13 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);C:\Users\51216\Desktop\cppui\yoga;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\Users\51216\Desktop\cppui\yoga\buildx64\yoga\Debug\yogacore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,7 +137,8 @@
     <ClInclude Include="core\EzUIAppWindow.h" />
     <ClInclude Include="core\EzUIWindow.h" />
     <ClInclude Include="core\EzUIApp.h" />
-    <ClInclude Include="layout-engine\EngineRender.h" />
+    <ClInclude Include="layout-engine\EngineLayoutRender.h" />
+    <ClInclude Include="layout-engine\EngineEditBoxRender.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -149,7 +151,8 @@
     <ClCompile Include="core\EzUIAppWindow.cpp" />
     <ClCompile Include="core\EzUIWindow.cpp" />
     <ClCompile Include="core\EzUIApp.cpp" />
-    <ClCompile Include="layout-engine\EngineRender.cpp" />
+    <ClCompile Include="layout-engine\EngineLayoutRender.cpp" />
+    <ClCompile Include="layout-engine\EngineEditBoxRender.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

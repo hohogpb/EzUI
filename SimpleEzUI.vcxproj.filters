@@ -42,10 +42,13 @@
     <ClInclude Include="common\signal_dispatcher.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="layout-engine\EngineRender.h">
+    <ClInclude Include="layout-engine\EngineEditBoxRender.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="core\EzUIApp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EngineLayoutRender.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,10 +71,13 @@
     <ClCompile Include="common\signal_dispatcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="layout-engine\EngineRender.cpp">
+    <ClCompile Include="layout-engine\EngineEditBoxRender.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="core\EzUIApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EngineLayoutRender.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
