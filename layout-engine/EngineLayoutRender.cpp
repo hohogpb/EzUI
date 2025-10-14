@@ -1,7 +1,11 @@
+// 好的参考教程：
+// https://devyang.space/2020/09/13/yoga%E5%B8%83%E5%B1%80%E8%A7%A3%E6%9E%90/
+
 #include "pch.h"
 #include "EngineLayoutRender.h"
 #include <gdiplus.h>
 #include "yoga/Yoga.h"
+#include "EzUIDocParser.h"
 
 #pragma comment(lib, "gdiplus.lib")
 using namespace Gdiplus;
@@ -14,6 +18,32 @@ void EngineLayout_InitGDIPlus() {
 }
 
 struct RectF32 { float x, y, w, h; };
+
+struct YogaAbsoluteRect {
+  float left, top, width, height;
+};
+
+YogaAbsoluteRect GetAbsoluteRect(YGNodeRef node) {
+  float left = YGNodeLayoutGetLeft(node);
+  float top = YGNodeLayoutGetTop(node);
+  float width = YGNodeLayoutGetWidth(node);
+  float height = YGNodeLayoutGetHeight(node);
+
+  YGNodeRef parent = YGNodeGetOwner(node);
+
+  while (parent) {
+    YGPositionType posType = YGNodeStyleGetPositionType(parent);
+    // 绝对定位的父节点就停止累加（它相对根或自身坐标系）
+    if (posType == YGPositionTypeAbsolute)
+      break;
+
+    left += YGNodeLayoutGetLeft(parent);
+    top += YGNodeLayoutGetTop(parent);
+    parent = YGNodeGetOwner(parent);
+  }
+
+  return { left, top, width, height };
+}
 
 class UIElement {
 public:
@@ -39,9 +69,18 @@ public:
   }
 
   virtual void OnRender(Graphics& g) {
-    SolidBrush brush(color);
-    g.FillRectangle(&brush, rect.x, rect.y, rect.w, rect.h);
 
+    YogaAbsoluteRect rect = GetAbsoluteRect(node);
+
+    RECT r = {
+        (LONG)rect.left,
+        (LONG)rect.top,
+        (LONG)(rect.left + rect.width),
+        (LONG)(rect.top + rect.height)
+    };
+
+    SolidBrush brush(color);
+    g.FillRectangle(&brush, rect.left, rect.top, rect.width, rect.height);
 
     for (auto c : children)
       c->OnRender(g);
@@ -57,49 +96,6 @@ void EngineLayout_PerformLayout(UIElement* root, float width, float height) {
   YGNodeStyleSetHeight(root->node, (float)height);
 
   YGNodeCalculateLayout(root->node, YGUndefined, YGUndefined, YGDirectionLTR);
-
-#if 1
-  // 递归更新 absolute rect（累加父偏移）
-  std::function<void(UIElement*, float, float)> update =
-    [&](UIElement* elem, float parentAbsX, float parentAbsY) {
-    // 取局部布局值（相对于父节点）
-    float localLeft = YGNodeLayoutGetLeft(elem->node);
-    float localTop = YGNodeLayoutGetTop(elem->node);
-    float localWidth = YGNodeLayoutGetWidth(elem->node);
-    float localHeight = YGNodeLayoutGetHeight(elem->node);
-
-    // 计算绝对位置（累加父偏移）
-    float absX = parentAbsX + localLeft;
-    float absY = parentAbsY + localTop;
-
-    // 如果你的 UIElement 使用 RECT / int 值存储，按需转换（四舍五入）
-    elem->rect.x = absX;
-    elem->rect.y = absY;
-    elem->rect.w = localWidth;
-    elem->rect.h = localHeight;
-
-    // 递归其子节点
-    for (auto child : elem->children) {
-      update(child, absX, absY);
-    }
-  };
-
-  // 根节点父偏移为 0,0（如果你想让根有 margin 可修改）
-  update(root, 0.0f, 0.0f);
-#endif
-
-#if 0
-
-  std::function<void(UIElement*)> update = [&](UIElement* e) {
-    e->rect.x = YGNodeLayoutGetLeft(e->node);
-    e->rect.y = YGNodeLayoutGetTop(e->node);
-    e->rect.w = YGNodeLayoutGetWidth(e->node);
-    e->rect.h = YGNodeLayoutGetHeight(e->node);
-    for (auto c : e->children)
-      update(c);
-  };
-  update(root);
-#endif
 }
 
 //----------------------------------------------
@@ -111,6 +107,10 @@ UIElement* g_root = nullptr;
 // 布局初始化
 //----------------------------------------------
 void EngineLayout_InitUILayout(EzUIWindow* wnd) {
+  EzUIDocParser parser;
+  parser.ParseFile(L"SimpleEzUI.ezui");
+
+
   g_root = new UIElement("Root");
   YGNodeStyleSetFlexDirection(g_root->node, YGFlexDirectionRow);
   YGNodeStyleSetWidth(g_root->node, 800);
@@ -143,7 +143,6 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   bottom->color = Color(255, 0, 0, 0);
   YGNodeStyleSetFlexGrow(bottom->node, 1);
   content->AddChild(bottom);
-
 }
 
 //----------------------------------------------

@@ -62,7 +62,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
   EngineLayout_InitGDIPlus();
 
-
   CreateWindows(hInstance);
 
   EzUIApp app(hInstance);
