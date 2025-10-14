@@ -57,6 +57,18 @@
     <ClInclude Include="SimpleEzUIConsole.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="layout-engine\EzUIElement.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUITreeBuilder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUIDocNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUIElementBuilder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleEzUI.cpp">
@@ -90,6 +102,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SimpleEzUIConsole.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUIElement.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUITreeBuilder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUIDocNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUIElementBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

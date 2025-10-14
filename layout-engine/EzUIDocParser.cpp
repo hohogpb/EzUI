@@ -72,17 +72,17 @@ std::wstring EzUIDocParser::Trim(const std::wstring_view& s) {
   return std::wstring(s.substr(start, end - start));
 }
 
-std::unique_ptr<XmlNode> EzUIDocParser::ParseFile(const std::wstring& docPath) {
+std::unique_ptr<EzUIDocNode> EzUIDocParser::ParseFile(const std::wstring& docPath) {
   auto docText = ReadFile(docPath);
   return ParseText(docText);
 }
 
-std::unique_ptr<XmlNode> EzUIDocParser::ParseText(const std::wstring& docText) {
+std::unique_ptr<EzUIDocNode> EzUIDocParser::ParseText(const std::wstring& docText) {
   mSrc = docText;
   return Parse();
 }
 
-std::unique_ptr<XmlNode> EzUIDocParser::Parse() {
+std::unique_ptr<EzUIDocNode> EzUIDocParser::Parse() {
   SkipWhitespace();
   if (!StartsWith(L"<"))
     return nullptr;
@@ -140,10 +140,11 @@ std::wstring EzUIDocParser::ParseQuotedString() {
   return val;
 }
 
-std::unique_ptr<XmlNode> EzUIDocParser::ParseNode() {
+std::unique_ptr<EzUIDocNode> EzUIDocParser::ParseNode() {
   if (Peek() != '<') return nullptr;
   Get(); // '<'
   if (StartsWith(L"!--")) {
+    mPos--;
     SkipComment();
     SkipWhitespace();
     return ParseNode(); // continue
@@ -152,7 +153,7 @@ std::unique_ptr<XmlNode> EzUIDocParser::ParseNode() {
   // 节点名称
   auto name = ParseIdentifier();
 
-  auto node = std::make_unique<XmlNode>();
+  auto node = std::make_unique<EzUIDocNode>();
   node->name = name;
 
   // 属性

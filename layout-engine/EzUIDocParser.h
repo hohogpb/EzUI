@@ -3,20 +3,7 @@
 #include <string>
 #include <cwctype>
 #include <string_view>
-
-struct XmlNode {
-  std::wstring name;
-  std::unordered_map<std::wstring, std::wstring> attributes;
-  std::vector<std::unique_ptr<XmlNode>> children;
-  std::wstring text;
-
-  XmlNode* FindChild(const std::wstring& tag) {
-    for (auto& c : children)
-      if (c->name == tag)
-        return c.get();
-    return nullptr;
-  }
-};
+#include "EzUIDocNode.h"
 
 class EzUIDocParser {
 public:
@@ -33,8 +20,8 @@ public:
   static bool IsUpper(wchar_t c) { return std::iswupper(c); }
   static bool IsLower(wchar_t c) { return std::iswlower(c); }
 
-  std::unique_ptr<XmlNode> ParseFile(const std::wstring& docPath);
-  std::unique_ptr<XmlNode> ParseText(const std::wstring& docText);
+  std::unique_ptr<EzUIDocNode> ParseFile(const std::wstring& docPath);
+  std::unique_ptr<EzUIDocNode> ParseText(const std::wstring& docText);
 
 private:
   std::wstring_view mSrc;
@@ -54,8 +41,8 @@ private:
 
   std::wstring ParseQuotedString();
 
-  std::unique_ptr<XmlNode> ParseNode();
+  std::unique_ptr<EzUIDocNode> ParseNode();
 
-  std::unique_ptr<XmlNode> Parse();
+  std::unique_ptr<EzUIDocNode> Parse();
 };
 
