@@ -8,6 +8,7 @@
 #include "core/EzUIWindow.h"
 #include "layout-engine/EngineEditBoxRender.h"
 #include "layout-engine/EngineLayoutRender.h"
+#include "common/file_watch.h"
 
 EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
@@ -56,6 +57,16 @@ static void CreateWindows(HINSTANCE hInstance) {
   appWindow->Create();
 }
 
+void HotReloadInit() {
+  static FileWatcher watch(L"./SimpleEzUI.ezui", []() {
+    std::wcout << L"文件已修改！" << std::endl;
+    // 这里可以安全调用你的热重载函数
+    EngineLayout_InitUILayout(mainWindow);
+    auto rc = mainWindow->GetClientRect();
+    EngineLayout_Resize(mainWindow, rc.right - rc.left, rc.bottom - rc.top);
+  });
+}
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
   HRESULT Hr = ::CoInitialize(NULL);
   if (FAILED(Hr))  return 0;
@@ -63,6 +74,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
   EngineLayout_InitGDIPlus();
 
   CreateWindows(hInstance);
+
+  HotReloadInit();
 
   EzUIApp app(hInstance);
   int nRet = app.Run();

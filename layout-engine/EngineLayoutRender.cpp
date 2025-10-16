@@ -50,26 +50,25 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
     return;
   }
 
+#if 1
   EzUITreeBuilder uiTreeBuilder;
   uiRoot = uiTreeBuilder.Build(domRoot.get());
-#if 0
-
-
+#else
   // 根节点
   uiRoot = new UIElement(L"Root");
-  YGNodeStyleSetFlexDirection(uiRoot->ygNode, YGFlexDirectionRow);
-  YGNodeStyleSetWidth(uiRoot->ygNode, 800);
-  YGNodeStyleSetHeight(uiRoot->ygNode, 600);
+  //YGNodeStyleSetFlexDirection(uiRoot->ygNode, YGFlexDirectionRow);
+  //YGNodeStyleSetWidth(uiRoot->ygNode, 800);
+ //YGNodeStyleSetHeight(uiRoot->ygNode, 600);
 
   // 左边栏
   auto sidebar = new UIElement(L"Sidebar");
   sidebar->color = Color(255, 255, 0, 0);
   YGNodeStyleSetWidth(sidebar->ygNode, 200);
   // YGNodeStyleSetHeight(sidebar->node,  YGPercentValue(100));
-  YGNodeStyleSetHeightPercent(sidebar->ygNode, 100.0f);
+  //YGNodeStyleSetHeightPercent(sidebar->ygNode, 100.0f);
   uiRoot->AddChild(sidebar);
 
-
+#if 0
   // 主内容区
   auto content = new UIElement(L"Content");
   content->color = Color(255, 0, 255, 0);
@@ -88,6 +87,7 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   bottom->color = Color(255, 0, 0, 0);
   YGNodeStyleSetFlexGrow(bottom->ygNode, 1);
   content->AddChild(bottom);
+#endif
 #endif
 }
 

@@ -194,6 +194,7 @@
     <ClInclude Include="core\EzUIAppWindow.h" />
     <ClInclude Include="core\EzUIWindow.h" />
     <ClInclude Include="core\EzUIApp.h" />
+    <ClInclude Include="common\file_watch.h" />
     <ClInclude Include="layout-engine\EzUIElementBuilder.h" />
     <ClInclude Include="layout-engine\EzUIDocNode.h" />
     <ClInclude Include="layout-engine\EzUITreeBuilder.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="core\EzUIAppWindow.cpp" />
     <ClCompile Include="core\EzUIWindow.cpp" />
     <ClCompile Include="core\EzUIApp.cpp" />
+    <ClCompile Include="common\file_watch.cpp" />
     <ClCompile Include="layout-engine\EzUIElementBuilder.cpp" />
     <ClCompile Include="layout-engine\EzUIDocNode.cpp" />
     <ClCompile Include="layout-engine\EzUITreeBuilder.cpp" />

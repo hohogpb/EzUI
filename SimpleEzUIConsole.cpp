@@ -61,11 +61,11 @@ void PrintUITree(const UIElement* node, int indent = 0) {
 
 // ===== 辅助：将 wstring 转 narrow 用于输出小工具 =====
 static std::wstring Narrow(const std::wstring& w) {
-    return std::wstring(w.begin(), w.end());
+  return std::wstring(w.begin(), w.end());
 }
 
 float safeValue(float v) {
-    return std::isnan(v) ? 0.0f : v;
+  return std::isnan(v) ? 0.0f : v;
 }
 
 // ===== Dump 单个节点的 style 与 layout 简要信息 =====
@@ -82,7 +82,7 @@ void DumpYogaNodeInfo(std::wostream& os, UIElement* node) {
   // 简要 style（选择常用函数）
   // 宽高（注意：无法直接询问 "是否用百分比" 的设置，Yoga 没有统一的 getter for percent vs px for every property，
   // 这里只打印 layout 与一些直接可读的数值）
-  os << "layout(x=" << lx << ", y=" << ly << ", w=" << lwidth  << ", h=" << lheight << ")";
+  os << "layout(x=" << lx << ", y=" << ly << ", w=" << lwidth << ", h=" << lheight << ")";
 
   // flex相关
   float flex = YGNodeStyleGetFlex(n);
@@ -138,6 +138,51 @@ int main() {
   PrintUITree(uiRoot);
 
   DumpYogaTree(uiRoot);
+
+
+  // 创建根节点
+  YGNodeRef root = YGNodeNew();
+  YGNodeStyleSetWidth(root, 800);
+  YGNodeStyleSetHeight(root, 600);
+  YGNodeStyleSetFlexDirection(root, YGFlexDirectionColumn);
+
+  // Layer A
+  YGNodeRef layerA = YGNodeNew();
+  YGNodeStyleSetPositionType(layerA, YGPositionTypeAbsolute);
+  YGNodeStyleSetPosition(layerA, YGEdgeLeft, 0);
+  YGNodeStyleSetPosition(layerA, YGEdgeTop, 0);
+  YGNodeStyleSetWidthPercent(layerA, 100);
+  YGNodeStyleSetHeightPercent(layerA, 100);
+
+  // Layer B
+  YGNodeRef layerB = YGNodeNew();
+  YGNodeStyleSetPositionType(layerB, YGPositionTypeAbsolute);
+  YGNodeStyleSetPosition(layerA, YGEdgeLeft, 0);
+  YGNodeStyleSetPosition(layerA, YGEdgeTop, 0);
+  YGNodeStyleSetWidthPercent(layerB, 100);
+  YGNodeStyleSetHeightPercent(layerB, 100);
+
+  // 挂到 root
+  YGNodeInsertChild(root, layerA, 0);
+  YGNodeInsertChild(root, layerB, 1);
+
+  // 计算布局
+  YGNodeCalculateLayout(root, YGUndefined, YGUndefined, YGDirectionLTR);
+
+  // 打印结果
+  wprintf(L"LayerA: left=%.1f top=%.1f w=%.1f h=%.1f\n",
+    YGNodeLayoutGetLeft(layerA),
+    YGNodeLayoutGetTop(layerA),
+    YGNodeLayoutGetWidth(layerA),
+    YGNodeLayoutGetHeight(layerA));
+
+  wprintf(L"LayerB: left=%.1f top=%.1f w=%.1f h=%.1f\n",
+    YGNodeLayoutGetLeft(layerB),
+    YGNodeLayoutGetTop(layerB),
+    YGNodeLayoutGetWidth(layerB),
+    YGNodeLayoutGetHeight(layerB));
+
+  YGNodeFreeRecursive(root);
 
   return 0;
 }

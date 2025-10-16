@@ -87,7 +87,7 @@ LRESULT CALLBACK EzUIAppWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam,
       //delete pThis;
       return 0;
     case WM_CLOSE:
-      PostQuitMessage(0);
+      PostQuitMessage(0);      
       return 0;
     case WM_COMMAND:
     {

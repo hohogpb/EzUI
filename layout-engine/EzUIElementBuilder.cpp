@@ -8,7 +8,11 @@
 #include <iostream>
 #include <cwctype> 
 
-inline std::string Narrow(const std::wstring& w) {
+using std::unordered_map;
+using std::wstring;
+using std::function;
+
+inline std::string Narrow(const wstring& w) {
   return std::string(w.begin(), w.end());
 }
 
@@ -50,7 +54,7 @@ Color ParseColor(const std::wstring& str) {
   return c;
 }
 
-static std::unordered_map<std::wstring, YGAlign> alignMap = {
+static unordered_map<wstring, YGAlign> alignMap = {
   {L"auto", YGAlignAuto},
   {L"flex-start", YGAlignFlexStart},
   {L"center", YGAlignCenter},
@@ -61,7 +65,7 @@ static std::unordered_map<std::wstring, YGAlign> alignMap = {
   {L"space-around", YGAlignSpaceAround},
 };
 
-static std::unordered_map<std::wstring, YGJustify> justifyMap = {
+static unordered_map<wstring, YGJustify> justifyMap = {
   {L"flex-start", YGJustifyFlexStart},
   {L"center", YGJustifyCenter},
   {L"flex-end", YGJustifyFlexEnd},
@@ -70,48 +74,149 @@ static std::unordered_map<std::wstring, YGJustify> justifyMap = {
   {L"space-evenly", YGJustifySpaceEvenly},
 };
 
-static std::unordered_map<std::wstring, YGFlexDirection> flexDirMap = {
+static unordered_map<wstring, YGFlexDirection> flexDirMap = {
   {L"row", YGFlexDirectionRow},
   {L"row-reverse", YGFlexDirectionRowReverse},
   {L"column", YGFlexDirectionColumn},
   {L"column-reverse", YGFlexDirectionColumnReverse},
 };
 
-static std::unordered_map<std::wstring, YGPositionType> posTypeMap = {
+static unordered_map<wstring, YGPositionType> positionTypeMap = {
   {L"relative", YGPositionTypeRelative},
   {L"absolute", YGPositionTypeAbsolute},
 };
 
-static std::unordered_map<std::wstring, YGDisplay> displayMap = {
+static unordered_map<wstring, YGDisplay> displayMap = {
   {L"flex", YGDisplayFlex},
   {L"none", YGDisplayNone},
 };
 
-static std::unordered_map<std::wstring, YGOverflow> overflowMap = {
+static unordered_map<wstring, YGOverflow> overflowMap = {
   {L"visible", YGOverflowVisible},
   {L"hidden", YGOverflowHidden},
   {L"scroll", YGOverflowScroll},
 };
 
+static unordered_map<wstring, YGEdge> ygEdgeDict = {
+  { L"left", YGEdgeLeft },
+  { L"right", YGEdgeRight },
+  { L"top", YGEdgeTop },
+  { L"bottom", YGEdgeBottom },
+  { L"start", YGEdgeStart },
+  { L"end", YGEdgeEnd },
+};
+
+
+// 1. 定义属性解析器接口
+// value uiNode
+using PropertyResolver = function<void(const wstring&, const wstring&, UIElement*, YGNodeRef)>;
+
 // ---- 辅助: 设置可为百分比或绝对值的属性 ----
 template<typename Setter, typename SetterPercent>
-void SetMaybePercent(YGNodeRef node, const std::wstring& val, Setter setFunc, SetterPercent setPercentFunc) {
+void SetMaybePercent(YGNodeRef node, const wstring& val, Setter setFunc, SetterPercent setPercentFunc) {
   float num = ParseFloat(val);
   if (IsPercent(val)) setPercentFunc(node, num);
   else setFunc(node, num);
 }
 
+static void flexDirectionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto lowercaseVal = ToLower(val);
+  YGNodeStyleSetFlexDirection(ygNode, flexDirMap[lowercaseVal]);
+};
+
+static void widthResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetWidth(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetWidthPercent(n, v); });
+}
+
+static void heightResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetHeight(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetHeightPercent(n, v); });
+}
+
+static void posResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto edge = ygEdgeDict[key];
+  SetMaybePercent(ygNode, val,
+    [edge](YGNodeRef n, float v) { YGNodeStyleSetPosition(n, edge, v); },
+    [edge](YGNodeRef n, float v) { YGNodeStyleSetPositionPercent(n, edge, v); });
+}
+
+static void positionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetPositionType(ygNode, positionTypeMap[val]);
+}
+
+static void colorResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  Color c = ParseColor(val);
+  uiNode->color = c;
+}
+
+static void nameResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  // 这里 name 属性已经在 UIElement 构造函数中设置过了
+}
+
+
+// 3. 声明并初始化 propertyResolverDict
+static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
+  // 可按需注册具体属性解析器
+  { L"flex-direction", flexDirectionResolver},
+  { L"width", widthResolver },
+  { L"height", heightResolver },
+  { L"left", posResolver },
+  { L"top", posResolver },
+  { L"right", posResolver },
+  { L"bottom", posResolver },
+  { L"position", positionResolver},
+  { L"color", colorResolver},
+  { L"name", nameResolver},
+  // ...
+};
+
+// 5. 在 Build 方法中调用前确保解析器存在
 UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
   auto uiNode = new UIElement(docNode->name);
+  auto ygNode = uiNode->ygNode;
 
   for (auto& [keyRaw, valueRaw] : docNode->attributes) {
     std::wstring key = ToLower(keyRaw);
-    std::wstring val = ToLower(valueRaw);
 
+    propertyResolverDict[key](key, valueRaw, uiNode, ygNode);
+
+
+
+#if 0
+    // ===== 边距 / 内边距 / 边框 / 位置 =====
+    static const std::vector<std::pair<std::wstring, YGEdge>> edges = {
+        {L"left", YGEdgeLeft}, {L"right", },
+        {L"top", }, {L"bottom", },
+        {L"start", YGEdgeStart}, {L"end", YGEdgeEnd},
+    };
+
+    for (auto [suffix, edge] : edges) {
+      if (key == L"margin-" + suffix)
+        SetMaybePercent(uiNode->ygNode, val,
+          [edge](YGNodeRef n, float v) { YGNodeStyleSetMargin(n, edge, v); },
+          [edge](YGNodeRef n, float v) { YGNodeStyleSetMarginPercent(n, edge, v); });
+
+      if (key == L"padding-" + suffix)
+        SetMaybePercent(uiNode->ygNode, val,
+          [edge](YGNodeRef n, float v) { YGNodeStyleSetPadding(n, edge, v); },
+          [edge](YGNodeRef n, float v) { YGNodeStyleSetPaddingPercent(n, edge, v); });
+
+      if (key == L"border-" + suffix)
+        YGNodeStyleSetBorder(uiNode->ygNode, edge, ParseFloat(val));
+
+      if (key == suffix) {// 位置 
+        SetMaybePercent(uiNode->ygNode, val,
+          [edge](YGNodeRef n, float v) { YGNodeStyleSetPosition(n, edge, v); },
+          [edge](YGNodeRef n, float v) { YGNodeStyleSetPositionPercent(n, edge, v); });
+      }
+    }
+
+    
     // ===== Flexbox =====
-    if (key == L"flex-direction" && flexDirMap.contains(val)) {
-      YGNodeStyleSetFlexDirection(uiNode->ygNode, flexDirMap[val]);
-    } else if (key == L"flex-wrap") {
+    else if (key == L"flex-wrap") {
       if (val == L"nowrap") YGNodeStyleSetFlexWrap(uiNode->ygNode, YGWrapNoWrap);
       else if (val == L"wrap") YGNodeStyleSetFlexWrap(uiNode->ygNode, YGWrapWrap);
       else if (val == L"wrap-reverse") YGNodeStyleSetFlexWrap(uiNode->ygNode, YGWrapWrapReverse);
@@ -204,8 +309,7 @@ UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
     }
 
     // ===== 其他 =====
-    if (key == L"position" && posTypeMap.contains(val))
-      YGNodeStyleSetPositionType(uiNode->ygNode, posTypeMap[val]);
+
     else if (key == L"overflow" && overflowMap.contains(val))
       YGNodeStyleSetOverflow(uiNode->ygNode, overflowMap[val]);
     else if (key == L"display" && displayMap.contains(val))
@@ -217,7 +321,7 @@ UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
     else if (key == L"column-gap")
       YGNodeStyleSetGap(uiNode->ygNode, YGGutterColumn, ParseFloat(val));
 
-
+#endif
   }
 
   return uiNode;
