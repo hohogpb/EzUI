@@ -8,3 +8,4 @@
 
 // 输入法
 #pragma comment(lib, "imm32.lib")
+#pragma comment(lib, "dwmapi.lib")

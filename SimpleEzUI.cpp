@@ -9,9 +9,16 @@
 #include "layout-engine/EngineEditBoxRender.h"
 #include "layout-engine/EngineLayoutRender.h"
 #include "common/file_watch.h"
+#include <io.h>
+#include <fcntl.h>
+#include <locale>
+#include <utils/WinConsole.h>
+#include <utils/DumpInfo.h>
 
 EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
+
+extern UIElement* uiRoot;
 
 static void CreateWindows(HINSTANCE hInstance) {
   appWindow = new EzUIAppWindow(hInstance);
@@ -31,7 +38,23 @@ static void CreateWindows(HINSTANCE hInstance) {
     mainWindow->LButtonUp += EngineEditBoxLButtonUp;
     mainWindow->MouseMoved += EngineEditBoxMouseMove;
 #endif
-    mainWindow->Created += EngineLayout_InitUILayout;
+    mainWindow->Created += [](auto wnd) {
+      EngineLayout_InitUILayout(wnd);
+
+      auto width = YGNodeStyleGetWidth(uiRoot->ygNode);
+      auto height = YGNodeStyleGetHeight(uiRoot->ygNode);
+
+      if (width.unit != YGUnitAuto && height.unit != YGUnitAuto) {
+#if 1
+        RECT rc;
+        GetWindowRect(appWindow->GetHwnd(), &rc);
+        rc.right = rc.left + (LONG)width.value;
+        rc.bottom = rc.top + (LONG)height.value;
+ 
+        ::SetWindowPos(appWindow->GetHwnd(), NULL, rc.left, rc.top, width.value, height.value, SWP_FRAMECHANGED);
+#endif
+      }
+    };
     mainWindow->Resized += EngineLayout_Resize;
     mainWindow->Draw += EngineLayout_RenderUI;
 
@@ -55,21 +78,28 @@ static void CreateWindows(HINSTANCE hInstance) {
   };
 
   appWindow->Create();
+  
 }
 
-void HotReloadInit() {
+static void HotReloadInit() {
   static FileWatcher watch(L"./SimpleEzUI.ezui", []() {
     std::wcout << L"文件已修改！" << std::endl;
     // 这里可以安全调用你的热重载函数
     EngineLayout_InitUILayout(mainWindow);
+
     auto rc = mainWindow->GetClientRect();
     EngineLayout_Resize(mainWindow, rc.right - rc.left, rc.bottom - rc.top);
+
+    DumpYogaTree(uiRoot);
   });
 }
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+
   HRESULT Hr = ::CoInitialize(NULL);
   if (FAILED(Hr))  return 0;
+
+  WinConsole::Init();
 
   EngineLayout_InitGDIPlus();
 

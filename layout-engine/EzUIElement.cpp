@@ -26,15 +26,14 @@ YogaAbsoluteRect GetAbsoluteRect(YGNodeRef node) {
 void UIElement::OnRender(Graphics& g) {
   YogaAbsoluteRect rect = GetAbsoluteRect(ygNode);
 
-  RECT r = {
-    (LONG)rect.left,
-    (LONG)rect.top,
-    (LONG)(rect.left + rect.width),
-    (LONG)(rect.top + rect.height)
-  };
+  // Create a SolidBrush for the background color.
+  SolidBrush backBrush(backgroundColor);
+  g.FillRectangle(&backBrush, rect.left, rect.top, rect.width, rect.height);
 
-  SolidBrush brush(color);
-  g.FillRectangle(&brush, rect.left, rect.top, rect.width, rect.height);
+  // Draw the background image if it exists.
+  if (backgroundImage) {
+    g.DrawImage(backgroundImage, rect.left, rect.top, rect.width, rect.height);
+  }     
 
   for (auto c : children)
     c->OnRender(g);

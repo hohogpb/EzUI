@@ -32,27 +32,141 @@ inline std::wstring ToLower(const std::wstring& s) {
   return out;
 }
 
+// Helper to trim whitespace
+inline std::wstring Trim(const std::wstring& s) {
+  const wchar_t* WHITESPACE = L" \n\r\t\f\v";
+  size_t first = s.find_first_not_of(WHITESPACE);
+  if (std::wstring::npos == first) {
+    return s;
+  }
+  size_t last = s.find_last_not_of(WHITESPACE);
+  return s.substr(first, (last - first + 1));
+}
+
+// HSL to RGB conversion helper
+Color HslToRgb(float h, float s, float l, float a) {
+  float r, g, b;
+  if (s == 0.0f) {
+    r = g = b = l; // achromatic
+  } else {
+    auto hue2rgb = [](float p, float q, float t) {
+      if (t < 0.0f) t += 1.0f;
+      if (t > 1.0f) t -= 1.0f;
+      if (t < 1.0f / 6.0f) return p + (q - p) * 6.0f * t;
+      if (t < 1.0f / 2.0f) return q;
+      if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6.0f;
+      return p;
+    };
+    float q = l < 0.5f ? l * (1.0f + s) : l + s - l * s;
+    float p = 2.0f * l - q;
+    r = hue2rgb(p, q, h + 1.0f / 3.0f);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1.0f / 3.0f);
+  }
+  return Color((BYTE)(a * 255), (BYTE)(r * 255), (BYTE)(g * 255), (BYTE)(b * 255));
+}
+
+
+static const std::unordered_map<std::wstring, Color> namedColors = {
+    {L"black", Color(255, 0, 0, 0)}, {L"silver", Color(255, 192, 192, 192)},
+    {L"gray", Color(255, 128, 128, 128)}, {L"white", Color(255, 255, 255, 255)},
+    {L"maroon", Color(255, 128, 0, 0)}, {L"red", Color(255, 255, 0, 0)},
+    {L"purple", Color(255, 128, 0, 128)}, {L"fuchsia", Color(255, 255, 0, 255)},
+    {L"green", Color(255, 0, 128, 0)}, {L"lime", Color(255, 0, 255, 0)},
+    {L"olive", Color(255, 128, 128, 0)}, {L"yellow", Color(255, 255, 255, 0)},
+    {L"navy", Color(255, 0, 0, 128)}, {L"blue", Color(255, 0, 0, 255)},
+    {L"teal", Color(255, 0, 128, 128)}, {L"aqua", Color(255, 0, 255, 255)},
+    {L"transparent", Color(0, 0, 0, 0)},
+};
+
 Color ParseColor(const std::wstring& str) {
-  Color c{ 255, 255, 255, 255 };
-  if (str.empty()) return c;
-  std::string s(str.begin(), str.end());
-  if (s[0] == '#') {
-    unsigned int hex = std::stoul(s.substr(1), nullptr, 16);
-    if (s.size() == 7) { // #RRGGBB
-      BYTE r = ((hex >> 16) & 0xFF);
-      BYTE g = ((hex >> 8) & 0xFF);
-      BYTE b = (hex & 0xFF);
-      BYTE a = 255;
-      c = Color(a, r, g, b);
-    } else if (s.size() == 9) { // #RRGGBBAA
-      BYTE r = ((hex >> 24) & 0xFF);
-      BYTE g = ((hex >> 16) & 0xFF);
-      BYTE b = ((hex >> 8) & 0xFF);
-      BYTE a = (hex & 0xFF);
-      c = Color(a, r, g, b);
+  std::wstring lowerStr = ToLower(Trim(str));
+  if (lowerStr.empty()) return Color(255, 255, 255, 255);
+
+  // 1. Named colors
+  auto it = namedColors.find(lowerStr);
+  if (it != namedColors.end()) {
+    return it->second;
+  }
+
+  // 2. Hexadecimal
+  if (lowerStr[0] == L'#') {
+    std::string s = Narrow(lowerStr);
+    unsigned int hex;
+    try {
+      hex = std::stoul(s.substr(1), nullptr, 16);
+    } catch (...) {
+      return Color(255, 255, 255, 255);
+    }
+    BYTE r, g, b, a = 255;
+    switch (s.size()) {
+    case 4: // #RGB
+      r = ((hex >> 8) & 0xF) * 17;
+      g = ((hex >> 4) & 0xF) * 17;
+      b = (hex & 0xF) * 17;
+      break;
+    case 5: // #RGBA
+      r = ((hex >> 12) & 0xF) * 17;
+      g = ((hex >> 8) & 0xF) * 17;
+      b = ((hex >> 4) & 0xF) * 17;
+      a = (hex & 0xF) * 17;
+      break;
+    case 7: // #RRGGBB
+      r = (hex >> 16) & 0xFF;
+      g = (hex >> 8) & 0xFF;
+      b = hex & 0xFF;
+      break;
+    case 9: // #RRGGBBAA
+      r = (hex >> 24) & 0xFF;
+      g = (hex >> 16) & 0xFF;
+      b = (hex >> 8) & 0xFF;
+      a = hex & 0xFF;
+      break;
+    default:
+      return Color(255, 255, 255, 255);
+    }
+    return Color(a, r, g, b);
+  }
+
+  // 3. rgb, rgba, hsl, hsla
+  size_t openParen = lowerStr.find(L'(');
+  size_t closeParen = lowerStr.rfind(L')');
+  if (openParen != std::wstring::npos && closeParen != std::wstring::npos) {
+    std::wstring type = lowerStr.substr(0, openParen);
+    std::wstring valuesStr = lowerStr.substr(openParen + 1, closeParen - openParen - 1);
+    std::vector<std::wstring> values;
+    std::wstringstream wss(valuesStr);
+    std::wstring value;
+    while (std::getline(wss, value, L',')) {
+      values.push_back(Trim(value));
+    }
+
+    try {
+      if (type == L"rgb" && values.size() == 3) {
+        return Color(255, (BYTE)std::stoi(values[0]), (BYTE)std::stoi(values[1]), (BYTE)std::stoi(values[2]));
+      }
+      if (type == L"rgba" && values.size() == 4) {
+        return Color((BYTE)(std::stof(values[3]) * 255), (BYTE)std::stoi(values[0]), (BYTE)std::stoi(values[1]), (BYTE)std::stoi(values[2]));
+      }
+      if (type == L"hsl" && values.size() == 3) {
+        float h = std::stof(values[0]) / 360.0f;
+        float s = std::stof(values[1].substr(0, values[1].find(L'%'))) / 100.0f;
+        float l = std::stof(values[2].substr(0, values[2].find(L'%'))) / 100.0f;
+        return HslToRgb(h, s, l, 1.0f);
+      }
+      if (type == L"hsla" && values.size() == 4) {
+        float h = std::stof(values[0]) / 360.0f;
+        float s = std::stof(values[1].substr(0, values[1].find(L'%'))) / 100.0f;
+        float l = std::stof(values[2].substr(0, values[2].find(L'%'))) / 100.0f;
+        float a = std::stof(values[3]);
+        return HslToRgb(h, s, l, a);
+      }
+    } catch (...) {
+      return Color(255, 255, 255, 255);
     }
   }
-  return c;
+
+  return Color(255, 255, 255, 255); // Default fallback
 }
 
 static unordered_map<wstring, YGAlign> alignMap = {
@@ -107,6 +221,26 @@ static unordered_map<wstring, YGEdge> ygEdgeDict = {
   { L"end", YGEdgeEnd },
 };
 
+static unordered_map<wstring, YGEdge> marginEdgeDict = {
+  { L"margin-left", YGEdgeLeft },
+  { L"margin-right", YGEdgeRight },
+  { L"margin-top", YGEdgeTop },
+  { L"margin-bottom", YGEdgeBottom },
+};
+
+static unordered_map<wstring, YGEdge> paddingEdgeDict = {
+  { L"padding-left", YGEdgeLeft },
+  { L"padding-right", YGEdgeRight },
+  { L"padding-top", YGEdgeTop },
+  { L"padding-bottom", YGEdgeBottom },
+};
+
+static unordered_map<wstring, YGEdge> borderEdgeDict = {
+  { L"border-left", YGEdgeLeft },
+  { L"border-right", YGEdgeRight },
+  { L"border-top", YGEdgeTop },
+  { L"border-bottom", YGEdgeBottom },
+};
 
 // 1. 定义属性解析器接口
 // value uiNode
@@ -126,7 +260,7 @@ static void colorResolver(const wstring& key, const wstring& val, UIElement* uiN
 }
 
 static void nameResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
-  // 这里 name 属性已经在 UIElement 构造函数中设置过了
+  uiNode->name = val;
 }
 
 static void flexDirectionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
@@ -186,9 +320,182 @@ static void alignContentResolver(const wstring& key, const wstring& val, UIEleme
   YGNodeStyleSetAlignContent(ygNode, alignMap[val]);
 }
 
-static void backgroundResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
-  
+static void backgroundColorResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  Color c = ParseColor(val);
+  uiNode->backgroundColor = c;
 }
+
+static void backgroundImageResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto lowerVal = ToLower(val);
+  if (lowerVal.rfind(L"url(", 0) == 0) { // Starts with url(
+    size_t start = val.find(L'(') + 1;
+    size_t end = val.rfind(L')');
+    if (start != std::wstring::npos && end != std::wstring::npos) {
+      std::wstring path = val.substr(start, end - start);
+      // Trim quotes
+      if (path.length() >= 2 && path.front() == L'"' && path.back() == L'"') {
+        path = path.substr(1, path.length() - 2);
+      }
+      delete uiNode->backgroundImage;
+      uiNode->backgroundImage = new Image(path.c_str());
+      if (uiNode->backgroundImage->GetLastStatus() != Ok) {
+        delete uiNode->backgroundImage;
+        uiNode->backgroundImage = nullptr;
+      }
+    }
+  } else if (lowerVal == L"none") {
+    delete uiNode->backgroundImage;
+    uiNode->backgroundImage = nullptr;
+  }
+}
+
+static void backgroundResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  // Shorthand: try to parse as image first, then as color.
+  auto lowerVal = ToLower(val);
+  if (lowerVal.rfind(L"url(", 0) == 0 || lowerVal == L"none") {
+    backgroundImageResolver(key, val, uiNode, ygNode);
+  } else {
+    backgroundColorResolver(key, val, uiNode, ygNode);
+  }
+}
+
+static void flexResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  std::wstring trimmedVal = Trim(ToLower(val));
+
+  if (trimmedVal == L"none") {
+    YGNodeStyleSetFlexGrow(ygNode, 0);
+    YGNodeStyleSetFlexShrink(ygNode, 0);
+    YGNodeStyleSetFlexBasisAuto(ygNode);
+    return;
+  }
+  if (trimmedVal == L"auto") {
+    YGNodeStyleSetFlexGrow(ygNode, 1);
+    YGNodeStyleSetFlexShrink(ygNode, 1);
+    YGNodeStyleSetFlexBasisAuto(ygNode);
+    return;
+  }
+
+  std::wstringstream wss(trimmedVal);
+  std::vector<std::wstring> parts;
+  std::wstring part;
+  while (wss >> part) {
+    parts.push_back(part);
+  }
+
+  if (parts.empty()) return;
+
+  // Default values
+  float flexGrow = 0.0f;
+  float flexShrink = 1.0f;
+  bool basisIsAuto = true;
+  float basisValue = 0.0f;
+  bool basisIsPercent = false;
+
+  if (parts.size() == 1) {
+    const auto& p1 = parts[0];
+    if (IsPercent(p1) || p1.find(L"px") != std::wstring::npos) { // e.g., "50%" or "100px"
+      flexGrow = 1.0f;
+      flexShrink = 1.0f;
+      basisIsAuto = false;
+      basisValue = ParseFloat(p1);
+      basisIsPercent = IsPercent(p1);
+    } else { // e.g., "2"
+      flexGrow = ParseFloat(p1);
+      flexShrink = 1.0f;
+      basisIsAuto = false; // flex-basis defaults to 0%
+      basisValue = 0.0f;
+      basisIsPercent = true;
+    }
+  } else if (parts.size() == 2) {
+    const auto& p1 = parts[0];
+    const auto& p2 = parts[1];
+    flexGrow = ParseFloat(p1);
+    if (IsPercent(p2) || p2.find(L"px") != std::wstring::npos || p2 == L"auto") { // e.g., "1 50%" or "1 auto"
+      flexShrink = 1.0f;
+      if (p2 == L"auto") {
+        basisIsAuto = true;
+      } else {
+        basisIsAuto = false;
+        basisValue = ParseFloat(p2);
+        basisIsPercent = IsPercent(p2);
+      }
+    } else { // e.g., "2 3"
+      flexShrink = ParseFloat(p2);
+      basisIsAuto = false; // flex-basis defaults to 0%
+      basisValue = 0.0f;
+      basisIsPercent = true;
+    }
+  } else if (parts.size() >= 3) {
+    const auto& p1 = parts[0];
+    const auto& p2 = parts[1];
+    const auto& p3 = parts[2];
+    flexGrow = ParseFloat(p1);
+    flexShrink = ParseFloat(p2);
+    if (p3 == L"auto") {
+      basisIsAuto = true;
+    } else {
+      basisIsAuto = false;
+      basisValue = ParseFloat(p3);
+      basisIsPercent = IsPercent(p3);
+    }
+  }
+
+  YGNodeStyleSetFlexGrow(ygNode, flexGrow);
+  YGNodeStyleSetFlexShrink(ygNode, flexShrink);
+  if (basisIsAuto) {
+    YGNodeStyleSetFlexBasisAuto(ygNode);
+  } else {
+    if (basisIsPercent) {
+      YGNodeStyleSetFlexBasisPercent(ygNode, basisValue);
+    } else {
+      YGNodeStyleSetFlexBasis(ygNode, basisValue);
+    }
+  }
+}
+
+
+static void flexWrapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  if (val == L"nowrap")
+    YGNodeStyleSetFlexWrap(ygNode, YGWrapNoWrap);
+  else if (val == L"wrap")
+    YGNodeStyleSetFlexWrap(ygNode, YGWrapWrap);
+  else if (val == L"wrap-reverse")
+    YGNodeStyleSetFlexWrap(ygNode, YGWrapWrapReverse);
+}
+
+static void flexGrowResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetFlexGrow(ygNode, ParseFloat(val));
+}
+
+static void flexShrinkResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetFlexShrink(ygNode, ParseFloat(val));
+}
+
+static void flexBasisResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetFlexBasis(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetFlexBasisPercent(n, v); });
+}
+
+static void marginPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto edge = marginEdgeDict[key];
+  SetMaybePercent(ygNode, val,
+    [edge](YGNodeRef n, float v) { YGNodeStyleSetMargin(n, edge, v); },
+    [edge](YGNodeRef n, float v) { YGNodeStyleSetMarginPercent(n, edge, v); });
+}
+
+static void paddingPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto edge = paddingEdgeDict[key];
+  SetMaybePercent(ygNode, val,
+    [edge](YGNodeRef n, float v) { YGNodeStyleSetPadding(n, edge, v); },
+    [edge](YGNodeRef n, float v) { YGNodeStyleSetPaddingPercent(n, edge, v); });
+}
+
+static void borderPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto edge = borderEdgeDict[key];
+  YGNodeStyleSetBorder(uiNode->ygNode, edge, ParseFloat(val));
+}
+
 
 // 3. 声明并初始化 propertyResolverDict
 static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
@@ -210,6 +517,25 @@ static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   { L"align-self", alignSelfResolver},
   { L"align-content", alignContentResolver},
   { L"background", backgroundResolver},
+  { L"background-color", backgroundColorResolver},
+  { L"background-image", backgroundImageResolver},
+  { L"flex", flexResolver},
+  { L"flex-wrap", flexWrapResolver},
+  { L"flex-grow", flexGrowResolver},
+  { L"flex-shrink", flexShrinkResolver},
+  { L"flex-basis", flexBasisResolver},
+  { L"margin-left", marginPartResolver},
+  { L"margin-right", marginPartResolver},
+  { L"margin-top", marginPartResolver},
+  { L"margin-bottom", marginPartResolver},
+  { L"padding-left", paddingPartResolver},
+  { L"padding-right", paddingPartResolver},
+  { L"padding-top", paddingPartResolver},
+  { L"padding-bottom", paddingPartResolver},
+  { L"border-left", borderPartResolver},
+  { L"border-right", borderPartResolver},
+  { L"border-top", borderPartResolver},
+  { L"border-bottom", borderPartResolver},
   // ...
 };
 

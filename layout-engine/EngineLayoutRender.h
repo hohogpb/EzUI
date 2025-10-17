@@ -10,3 +10,4 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd);
 void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc);
 
 void EngineLayout_Resize(EzUIWindow* wnd, int width, int height);
+

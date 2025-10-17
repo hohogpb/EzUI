@@ -90,19 +90,25 @@ private:
       DWORD dw = WaitForSingleObjectEx(dirHandle, INFINITE, TRUE);
       if (!running) break;
 
+      bool trigger = false;
+
       //FILE_ACTION_MODIFIED
       FILE_NOTIFY_INFORMATION* info = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(buffer);
       do {
         std::wstring changed(info->FileName, info->FileNameLength / sizeof(WCHAR));
         if (_wcsicmp(changed.c_str(), filename.c_str()) == 0) {
           if (info->Action == FILE_ACTION_MODIFIED)
-            callback(); 
+            trigger = true;
         }
 
         if (info->NextEntryOffset == 0)
           break;
         info = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<BYTE*>(info) + info->NextEntryOffset);
       } while (true);
+
+      if (trigger) {
+        callback();
+      }
     }
   }
 

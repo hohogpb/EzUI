@@ -20,19 +20,7 @@ UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
  
 
     // ===== Flexbox =====
- else if (key == L"flex-wrap") {
-      if (val == L"nowrap") YGNodeStyleSetFlexWrap(uiNode->ygNode, YGWrapNoWrap);
-      else if (val == L"wrap") YGNodeStyleSetFlexWrap(uiNode->ygNode, YGWrapWrap);
-      else if (val == L"wrap-reverse") YGNodeStyleSetFlexWrap(uiNode->ygNode, YGWrapWrapReverse);
-      } else if (key == L"flex-grow") {
-        YGNodeStyleSetFlexGrow(uiNode->ygNode, ParseFloat(val));
-      } else if (key == L"flex-shrink") {
-        YGNodeStyleSetFlexShrink(uiNode->ygNode, ParseFloat(val));
-      } else if (key == L"flex-basis") {
-        SetMaybePercent(uiNode->ygNode, val,
-          [](YGNodeRef n, float v) { YGNodeStyleSetFlexBasis(n, v); },
-          [](YGNodeRef n, float v) { YGNodeStyleSetFlexBasisPercent(n, v); });
-      }
+ else 
       // ===== 对齐 =====
 
 
@@ -61,32 +49,7 @@ UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
             }
 
             // ===== 边距 / 内边距 / 边框 / 位置 =====
-            static const std::vector<std::pair<std::wstring, YGEdge>> edges = {
-                {L"left", YGEdgeLeft}, {L"right", YGEdgeRight},
-                {L"top", YGEdgeTop}, {L"bottom", YGEdgeBottom},
-                {L"start", YGEdgeStart}, {L"end", YGEdgeEnd},
-            };
-
-            for (auto [suffix, edge] : edges) {
-              if (key == L"margin-" + suffix)
-                SetMaybePercent(uiNode->ygNode, val,
-                  [edge](YGNodeRef n, float v) { YGNodeStyleSetMargin(n, edge, v); },
-                  [edge](YGNodeRef n, float v) { YGNodeStyleSetMarginPercent(n, edge, v); });
-
-              if (key == L"padding-" + suffix)
-                SetMaybePercent(uiNode->ygNode, val,
-                  [edge](YGNodeRef n, float v) { YGNodeStyleSetPadding(n, edge, v); },
-                  [edge](YGNodeRef n, float v) { YGNodeStyleSetPaddingPercent(n, edge, v); });
-
-              if (key == L"border-" + suffix)
-                YGNodeStyleSetBorder(uiNode->ygNode, edge, ParseFloat(val));
-
-              if (key == suffix) {// 位置 
-                SetMaybePercent(uiNode->ygNode, val,
-                  [edge](YGNodeRef n, float v) { YGNodeStyleSetPosition(n, edge, v); },
-                  [edge](YGNodeRef n, float v) { YGNodeStyleSetPositionPercent(n, edge, v); });
-              }
-            }
+           
 
             // ===== 其他 =====
 

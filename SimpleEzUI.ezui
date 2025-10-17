@@ -1,30 +1,50 @@
 <!-- 根节点 -->
-<Window padding ="10">
-  <Video position="absolute" left="0" top="0" width="100%" height="100%" color="#000000"></Video>
+<Window padding ="10" width="800" height="600" >
+  <Video position="absolute" left="0" top="0" width="100%" height="100%"
+      ></Video>
 
-
-  <UI position="absolute" left="0" top="0" width="100%" height="100%" color="#FF000022"
-    justify-content="space-between">
+  <UI position="absolute" left="0" top="0" width="100%" height="100%"
+    background-color="#FF000022" justify-content="space-between">
 
     <!-- 左边栏 -->
-    <TitleBar name="Sidebar" height="50"  color="#FF00ff55" >
+    <TitleBar name="Sidebar" height="50" background-color="#FF00ff55" >
     </TitleBar>
 
-    <div name="bottom" color="#00FF00" height="48"  >
-      <div name="progress-bar-container" height="3">
-        <div name="progress-bar" color="#0000FF">          
-          <div name="progress-container">
-            <div name="load-progress" background="rgba(255, 255, 255, .4)"></div>
-            <div name="hover-progress" background="rgba(255, 255, 255, .5)"></div>
+    <div name="bottom" height="48" padding-top="3">
+      <div name="progress-bar-container" height="3" >
+        <div name="progress-bar" height="100%" background="#00000011">
+          <div name="progress-container" height="100%" position="relative">
+            <div name="load-progress" width="30%" height="100%" position="absolute" background="rgba(255, 255, 255, .4)"></div>
+            <div name="hover-progress" width="60%" height="100%" position="absolute" background="rgba(255, 255, 255, .5)"></div>
           </div>
-          
+
           <div name="scrubber-container">
             <div name="scrubber-button"></div>
-          </div>          
-        </div>        
+          </div>
+        </div>
       </div>
-      <div name="controls">
-      
+
+      <div name="controls" height="100%" flex-direction="row">
+        <div name="left-controls" flex="1" flex-direction="row">
+          <button name="play-button" height="100%" width="46" background="#Ff0000">
+          </button>
+          
+          <div name="volume-area" width="50" height="100%" background="#00ff00">
+            <button name="mute-button"></button>
+            <div name="volume-panel">
+              <div name="volume-slider">
+                <div name="volume-slider-handle"></div>
+              </div>
+            </div>
+          </div>
+
+          <div name="time-display" width="110" background="#1000f0"></div>
+        </div>
+
+        <div name="right-controls" flex-direction="row">
+          <button name="setting-button" width="48" background="blue"></button>
+          <button name="fullscreen-button" width="48" background="red"></button>
+        </div>
       </div>
     </div>
   </UI>

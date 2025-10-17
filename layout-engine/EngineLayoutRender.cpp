@@ -45,14 +45,17 @@ UIElement* uiRoot = nullptr;
 void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   EzUIDocParser parser;
   auto domRoot = parser.ParseFile(L"SimpleEzUI.ezui");
-  if (!domRoot) {
-    MessageBoxA(NULL, "Failed to load SimpleEzUI.ezui", "Error", MB_OK | MB_ICONERROR);
-    return;
+  while (!domRoot) {
+    //MessageBoxA(NULL, "Failed to load SimpleEzUI.ezui", "Error", MB_OK | MB_ICONERROR);
+    //return;
+    std::wcout << L"打开ui文件失败，再次尝试\n";
+    domRoot = parser.ParseFile(L"SimpleEzUI.ezui");
   }
 
 #if 1
   EzUITreeBuilder uiTreeBuilder;
   uiRoot = uiTreeBuilder.Build(domRoot.get());
+
 #else
   // 根节点
   uiRoot = new UIElement(L"Root");

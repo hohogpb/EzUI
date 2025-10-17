@@ -6,6 +6,7 @@
 
 // Windows 头文件
 #include <windows.h>
+#include <windowsx.h>
 #include <commctrl.h>
 #include <objbase.h> 
 
@@ -16,6 +17,8 @@
 #include <wrl/client.h>
 // 输入法
 #include <imm.h>
+
+#include <dwmapi.h>
 
 // C 运行时头文件
 #include <stdlib.h>
