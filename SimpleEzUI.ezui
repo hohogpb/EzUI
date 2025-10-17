@@ -1,15 +1,32 @@
 <!-- 根节点 -->
-<Window flex-direction="column">
+<Window padding ="10">
   <Video position="absolute" left="0" top="0" width="100%" height="100%" color="#000000"></Video>
 
 
-  <UI position="absolute" left="0" top="0" width="100%" height="100%" color="#FF000022">
-    <!-- 左边栏 -->
-    <TitleBar name="Sidebar" height="50"  color="#FF00ff55">
-     </TitleBar>
+  <UI position="absolute" left="0" top="0" width="100%" height="100%" color="#FF000022"
+    justify-content="space-between">
 
-    <BottomBar color="#00FF00" height="50">     
-    </BottomBar>
+    <!-- 左边栏 -->
+    <TitleBar name="Sidebar" height="50"  color="#FF00ff55" >
+    </TitleBar>
+
+    <div name="bottom" color="#00FF00" height="48"  >
+      <div name="progress-bar-container" height="3">
+        <div name="progress-bar" color="#0000FF">          
+          <div name="progress-container">
+            <div name="load-progress" background="rgba(255, 255, 255, .4)"></div>
+            <div name="hover-progress" background="rgba(255, 255, 255, .5)"></div>
+          </div>
+          
+          <div name="scrubber-container">
+            <div name="scrubber-button"></div>
+          </div>          
+        </div>        
+      </div>
+      <div name="controls">
+      
+      </div>
+    </div>
   </UI>
 
 

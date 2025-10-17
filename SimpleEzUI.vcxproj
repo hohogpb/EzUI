@@ -204,6 +204,7 @@
     <ClInclude Include="layout-engine\EngineEditBoxRender.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="layout-engine\EzUIPropertyResolvers.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="common\signal.h" />
     <ClInclude Include="common\signal_dispatcher.h" />
@@ -233,6 +234,7 @@
     </ClCompile>
     <ClCompile Include="common\signal.cpp" />
     <ClCompile Include="common\signal_dispatcher.cpp" />
+    <ClCompile Include="layout-engine\EzUIPropertyResolvers.cpp" />
     <ClCompile Include="SimpleEzUI.cpp" />
     <ClCompile Include="SimpleEzUIConsole.cpp" />
   </ItemGroup>
