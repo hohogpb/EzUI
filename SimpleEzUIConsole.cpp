@@ -20,6 +20,9 @@ int main() {
   EzUITreeBuilder builder;
   auto uiRoot = builder.Build(domRoot.get());
 
+  PrintUITree(uiRoot);
+
+#if 0
   YGNodeStyleSetWidth(uiRoot->ygNode, (float)800);
   YGNodeStyleSetHeight(uiRoot->ygNode, (float)600);
 
@@ -73,6 +76,6 @@ int main() {
     YGNodeLayoutGetHeight(layerB));
 
   YGNodeFreeRecursive(root);
-
+#endif
   return 0;
 }

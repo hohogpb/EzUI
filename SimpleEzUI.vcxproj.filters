@@ -84,6 +84,12 @@
     <ClInclude Include="layout-engine\property-resolvers\FlexResolvers.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="layout-engine\EzUISvgElement.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUITextFormatCaches.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleEzUI.cpp">
@@ -144,6 +150,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\property-resolvers\FlexResolvers.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUISvgElement.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUITextFormatCaches.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

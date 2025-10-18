@@ -280,6 +280,30 @@ static void heightResolver(const wstring& key, const wstring& val, UIElement* ui
     [](YGNodeRef n, float v) { YGNodeStyleSetHeightPercent(n, v); });
 }
 
+static void minWidthResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetMinWidth(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetMinWidthPercent(n, v); });
+}
+
+static void minHeightResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetMinHeight(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetMinHeightPercent(n, v); });
+}
+
+static void maxWidthResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetMaxWidth(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetMaxWidthPercent(n, v); });
+}
+
+static void maxHeightResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  SetMaybePercent(ygNode, val,
+    [](YGNodeRef n, float v) { YGNodeStyleSetMaxHeight(n, v); },
+    [](YGNodeRef n, float v) { YGNodeStyleSetMaxHeightPercent(n, v); });
+}
+
 static void posResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
   auto edge = ygEdgeDict[key];
   SetMaybePercent(ygNode, val,
@@ -491,11 +515,52 @@ static void paddingPartResolver(const wstring& key, const wstring& val, UIElemen
     [edge](YGNodeRef n, float v) { YGNodeStyleSetPaddingPercent(n, edge, v); });
 }
 
-static void borderPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
-  auto edge = borderEdgeDict[key];
-  YGNodeStyleSetBorder(uiNode->ygNode, edge, ParseFloat(val));
+static void borderResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetBorder(ygNode, YGEdgeAll, ParseFloat(val));
 }
 
+static void borderPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  auto edge = borderEdgeDict[key];
+  YGNodeStyleSetBorder(ygNode, edge, ParseFloat(val));
+}
+
+static void overflowResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  if (overflowMap.contains(val))
+    YGNodeStyleSetOverflow(ygNode, overflowMap[val]);
+}
+
+static void displayResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  if (displayMap.contains(val))
+    YGNodeStyleSetDisplay(ygNode, displayMap[val]);
+}
+
+static void aspectRatioResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetAspectRatio(ygNode, ParseFloat(val));
+}
+
+static void gapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetGap(ygNode, YGGutterAll, ParseFloat(val));
+}
+
+static void rowGapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetGap(ygNode, YGGutterRow, ParseFloat(val));
+}
+
+static void columnGapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  YGNodeStyleSetGap(ygNode, YGGutterColumn, ParseFloat(val));
+}
+
+static void versionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+
+}
+
+static void viewBoxResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+
+}
+
+static void classResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+
+}
 
 // 3. 声明并初始化 propertyResolverDict
 static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
@@ -505,6 +570,10 @@ static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   { L"flex-direction", flexDirectionResolver},
   { L"width", widthResolver },
   { L"height", heightResolver },
+  { L"min-width", minWidthResolver },
+  { L"min-height", minHeightResolver },
+  { L"max-width", maxWidthResolver },
+  { L"max-height", maxHeightResolver },
   { L"left", posResolver },
   { L"top", posResolver },
   { L"right", posResolver },
@@ -532,12 +601,25 @@ static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   { L"padding-right", paddingPartResolver},
   { L"padding-top", paddingPartResolver},
   { L"padding-bottom", paddingPartResolver},
+  { L"border", borderResolver},
   { L"border-left", borderPartResolver},
   { L"border-right", borderPartResolver},
   { L"border-top", borderPartResolver},
   { L"border-bottom", borderPartResolver},
+  { L"overflow", overflowResolver},
+  { L"display", displayResolver},
+  { L"aspect-ratio", aspectRatioResolver},
+  { L"gap", gapResolver},
+  { L"row-gap", rowGapResolver},
+  { L"column-gap", columnGapResolver},
+
+  // for svg
+  { L"version", versionResolver},
+  { L"viewbox", viewBoxResolver},
   // ...
+  { L"class", classResolver},
 };
+
 
 static void ensurePropertyResolved(const wstring& key) {
   if (!propertyResolverDict.contains(key)) {

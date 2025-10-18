@@ -122,7 +122,7 @@ std::wstring EzUIDocParser::ParseIdentifier() {
   std::wstring id;
   while (mPos < mSrc.size()) {
     auto c = Peek();
-    if (IsAlnum(c) || c == '_' || c == '-')
+    if (IsAlnum(c) || c == '_' || c == '-' || c == ':')
       id.push_back(Get());
     else
       break;

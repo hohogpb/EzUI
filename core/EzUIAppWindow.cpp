@@ -296,7 +296,7 @@ void EzUIAppWindow::Create(int x, int y, int width, int height) {
 
   mWnd = CreateWindowEx(exStyle, EZUI_APPWND_CLASS, L"EzUIAppWnd", style,
     x, y, width, height, NULL, NULL, mInst, (LPVOID)this);
-
+ 
   SetBorderless(borderless);
   SetBorderlessShadow(borderless_shadow);
 

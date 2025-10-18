@@ -6,10 +6,14 @@
 #include <layout-engine/EzUIDocNode.h>
 #include <layout-engine/EzUIElement.h>
 
+
 using std::stack;
 using std::pair;
 
+
 void PrintXmlTree(const EzUIDocNode* node, int indent = 0);
+
+std::wstring DumpDocTree(const EzUIDocNode* node);
 
 void PrintUITree(const UIElement* node, int indent = 0);
 

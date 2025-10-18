@@ -13,12 +13,15 @@
 // Direct2D 和 DirectWrite
 #include <dwrite.h>
 #include <d2d1.h>
-// 包装 COM 智能指针
-#include <wrl/client.h>
+#include <d2d1_3.h>
+#include <d2d1svg.h>
+#include <wrl.h>
+#include <comdef.h>
+
 // 输入法
 #include <imm.h>
-
 #include <dwmapi.h>
+#include <shlwapi.h>
 
 // C 运行时头文件
 #include <stdlib.h>

@@ -38,6 +38,8 @@ void EngineEditBoxInit(EzUIWindow* wnd) {
 
   // DWrite
   DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&g_pDWriteFactory);
+
+
   g_pDWriteFactory->CreateTextFormat(
     L"Segoe UI", nullptr,
     DWRITE_FONT_WEIGHT_REGULAR,

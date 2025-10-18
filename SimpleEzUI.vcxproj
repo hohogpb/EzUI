@@ -195,6 +195,8 @@
     <ClInclude Include="core\EzUIWindow.h" />
     <ClInclude Include="core\EzUIApp.h" />
     <ClInclude Include="common\file_watch.h" />
+    <ClInclude Include="layout-engine\EzUITextFormatCaches.h" />
+    <ClInclude Include="layout-engine\EzUISvgElement.h" />
     <ClInclude Include="layout-engine\property-resolvers\FlexResolvers.h" />
     <ClInclude Include="utils\DumpInfo.h" />
     <ClInclude Include="layout-engine\EzUIElementBuilder.h" />
@@ -220,6 +222,8 @@
     <ClCompile Include="core\EzUIWindow.cpp" />
     <ClCompile Include="core\EzUIApp.cpp" />
     <ClCompile Include="common\file_watch.cpp" />
+    <ClCompile Include="layout-engine\EzUITextFormatCaches.cpp" />
+    <ClCompile Include="layout-engine\EzUISvgElement.cpp" />
     <ClCompile Include="layout-engine\property-resolvers\FlexResolvers.cpp" />
     <ClCompile Include="utils\DumpInfo.cpp" />
     <ClCompile Include="layout-engine\EzUIElementBuilder.cpp" />

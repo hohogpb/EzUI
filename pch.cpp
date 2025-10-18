@@ -9,3 +9,6 @@
 // 输入法
 #pragma comment(lib, "imm32.lib")
 #pragma comment(lib, "dwmapi.lib")
+
+#pragma comment(lib, "gdiplus.lib")
+#pragma comment(lib, "shlwapi.lib")

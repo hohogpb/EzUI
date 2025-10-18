@@ -11,8 +11,7 @@
 
 using std::stack;
 using std::pair;
-
-#pragma comment(lib, "gdiplus.lib")
+using Microsoft::WRL::ComPtr;
 using namespace Gdiplus;
 
 GdiplusStartupInput gdiplusStartupInput;
@@ -22,6 +21,10 @@ void EngineLayout_InitGDIPlus() {
   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 }
 
+
+ComPtr<ID2D1Factory> gD2DFactory;
+ComPtr<ID2D1HwndRenderTarget> gRenderTarget;
+ComPtr<IDWriteFactory> gDWriteFactory;
 
 //----------------------------------------------
 // 布局计算
@@ -43,6 +46,24 @@ UIElement* uiRoot = nullptr;
 // 布局初始化
 //----------------------------------------------
 void EngineLayout_InitUILayout(EzUIWindow* wnd) {
+  // D2D
+  if (!gD2DFactory)
+    D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, gD2DFactory.GetAddressOf());
+
+  if (!gRenderTarget) {
+    RECT rc = wnd->GetClientRect();
+
+    gD2DFactory->CreateHwndRenderTarget(
+      D2D1::RenderTargetProperties(),
+      D2D1::HwndRenderTargetProperties(wnd->GetHwnd(), D2D1::SizeU(rc.right, rc.bottom)),
+      &gRenderTarget
+    );
+  }
+
+  if (!gDWriteFactory)
+    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&gDWriteFactory); 
+
+
   EzUIDocParser parser;
   auto domRoot = parser.ParseFile(L"SimpleEzUI.ezui");
   while (!domRoot) {
@@ -92,23 +113,41 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   content->AddChild(bottom);
 #endif
 #endif
+
+
 }
-
-//----------------------------------------------
-// 绘制
-//----------------------------------------------
-void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
-  Graphics g(hdc);
-  g.Clear(Color(255, 245, 245, 245));
-
-  if (uiRoot)
-    uiRoot->OnRender(g);
-}
-
 
 void EngineLayout_Resize(EzUIWindow* wnd, int width, int height) {
+  // 调整 RenderTarget 大小
+  if (gRenderTarget) {
+    D2D1_SIZE_U size = D2D1::SizeU(width, height);
+    gRenderTarget->Resize(size);
+  }
+
   if (uiRoot) {
     EngineLayout_PerformLayout(uiRoot, (float)width, (float)height);
     wnd->Invalidate();
   }
 }
+
+void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
+#if 0  
+  Graphics g(hdc);
+  g.Clear(Color(255, 245, 245, 245));
+
+  if (uiRoot)
+    uiRoot->OnRender(g);
+#endif
+
+  gRenderTarget->BeginDraw();
+  gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+  if (uiRoot)
+    uiRoot->OnRenderD2D(gRenderTarget.Get());
+
+  HRESULT hr = gRenderTarget->EndDraw();
+  if (hr == D2DERR_RECREATE_TARGET)
+    gRenderTarget.Reset();
+
+}
+
