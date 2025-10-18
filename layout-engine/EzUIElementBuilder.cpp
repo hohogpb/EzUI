@@ -17,7 +17,18 @@ YGSize MeasureTextNode(YGNodeConstRef ygNode,
   float maxWidth = (widthMode == YGMeasureModeUndefined) ? FLT_MAX : width;
   float maxHeight = (heightMode == YGMeasureModeUndefined) ? FLT_MAX : height;
 
-  auto size = uiNode->MesureText(maxWidth, maxHeight); 
+  auto size = uiNode->MesureText(maxWidth, maxHeight);
+
+  // 根据 Yoga measureMode 约束大小
+  if (widthMode == YGMeasureModeAtMost)
+    size.width = min(size.width, width);
+  else if (widthMode == YGMeasureModeExactly)
+    size.width = width;
+
+  if (heightMode == YGMeasureModeAtMost)
+    size.height = min(size.height, height);
+  else if (heightMode == YGMeasureModeExactly)
+    size.height = height;
 
   return size;
 }

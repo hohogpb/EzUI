@@ -57,9 +57,9 @@
           </div>
 
           <div name="time-display"  flex-direction="row" gap="3">
-            <span name="ytp-time-current">0:13你好大哥咯咯咯卢卡库老师的法律是拉开建设的发拉萨大家发绿卡昆仑山搭街坊绿卡介绍了扩大飞机离开家刻录机</span>
+            <span name="ytp-time-current">0:13</span>
             <span name="ytp-time-separator"> / </span>
-            <span name="ytp-time-duration">12:51</span>
+            <span name="ytp-time-duration" >12:51</span>
           </div>
         </div>
 

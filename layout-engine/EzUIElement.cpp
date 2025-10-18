@@ -183,7 +183,7 @@ YGSize UIElement::MesureText(float maxWidth, float maxHeight) {
     return YGSize(0, 0);
   }
 
-  textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+  textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
   textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
   textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 
@@ -204,6 +204,8 @@ YGSize UIElement::MesureText(float maxWidth, float maxHeight) {
   YGSize size;
   size.width = metrics.width;
   size.height = metrics.height;
+
+  textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 
   return size;
 }
