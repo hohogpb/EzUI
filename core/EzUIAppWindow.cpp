@@ -233,8 +233,8 @@ static LRESULT ON_WM_NCCALCSIZE(EzUIAppWindow* window, HWND hwnd, UINT uMessage,
   return DefWindowProc(hwnd, uMessage, wParam, lParam);
 }
 
-static LRESULT ON_WM_NCHITTEST(EzUIAppWindow* window, HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
-  if (!window->borderless)
+static LRESULT ON_WM_NCHITTEST(EzUIAppWindow* win, HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+  if (!win->borderless)
     return DefWindowProc(hwnd, uMessage, wParam, lParam);
 
   // When we have no border or title bar, we need to perform our
@@ -256,8 +256,11 @@ static LRESULT ON_WM_NCHITTEST(EzUIAppWindow* window, HWND hwnd, UINT uMessage, 
     return HTNOWHERE;
   }
 
-  const auto borderless_drag = false; //window->borderless_drag;
-  const auto borderless_resize = window->borderless_resize;
+  POINT ptClient = pt;
+  ::ScreenToClient(hwnd, &ptClient);
+
+  const auto borderless_drag = win->borderless_drag;
+  const auto borderless_resize = win->borderless_resize;
 
   const auto drag = borderless_drag ? HTCAPTION : HTCLIENT;
 
@@ -284,7 +287,10 @@ static LRESULT ON_WM_NCHITTEST(EzUIAppWindow* window, HWND hwnd, UINT uMessage, 
   case top | right: return borderless_resize ? HTTOPRIGHT : drag;
   case bottom | left: return borderless_resize ? HTBOTTOMLEFT : drag;
   case bottom | right: return borderless_resize ? HTBOTTOMRIGHT : drag;
-  case client: return drag;
+  case client: {
+    ON_WM_MOUSEMOVE(win, hwnd, uMessage, wParam, MAKELPARAM( ptClient.x, ptClient.y));
+    return drag;
+  }
   default: return HTNOWHERE;
   }
 }
@@ -369,7 +375,6 @@ LONG EzUIAppWindow::GetLong(int idx) {
   }
   return -1;
 }
-
 
 void EzUIAppWindow::SetBorderless(bool enabled) {
   Style newStyle = (enabled) ? SelectBorderlessStyle() : Style::windowed;

@@ -77,6 +77,12 @@ static void CreateWindows(HINSTANCE hInstance) {
     }
   };
 
+  appWindow->MouseMove += [&](EzUIAppWindow* appWnd, int x, int y) {
+    // 鼠标移动到主窗口时也触发子窗口的鼠标移动事件
+    std::wcout << L"mouse move : " << x << L"," << y << std::endl;
+    std::cout << "mouse move : " << x << "," << y << std::endl;
+  };
+
   appWindow->Create();
   
 }
