@@ -54,7 +54,7 @@ public:
 
   virtual IDWriteTextLayout* UpdateTextLayout(float maxWidth, float maxHeight);
 
-  YGSize MesureText(float maxWidth, float maxHeight); 
+  YGSize MesureText(float maxWidth, float maxHeight);
 
 protected:
   ComPtr<IDWriteTextFormat> mTextFormat;

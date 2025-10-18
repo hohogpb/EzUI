@@ -114,7 +114,6 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
 #endif
 #endif
 
-
 }
 
 void EngineLayout_Resize(EzUIWindow* wnd, int width, int height) {

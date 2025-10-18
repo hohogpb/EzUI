@@ -51,7 +51,6 @@ public:
   Signal<EzUIWindow*, UINT> CharInputed;
   Signal<EzUIWindow*, UINT> TimerCalled;
 
-
 protected:
   HWND mWnd;
   HINSTANCE mInst;

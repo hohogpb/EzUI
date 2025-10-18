@@ -63,7 +63,7 @@ static void CreateWindows(HINSTANCE hInstance) {
     SetFocus(mainWindow->GetHwnd());
   };
 
-  appWindow->Resized += [&](EzUIAppWindow* appWnd) {
+  appWindow->Resized += [&](EzUIAppWindow* appWnd, int width, int height) {
     if (mainWindow) {
       RECT rect = appWnd->GetClientRect();
       SetWindowPos(mainWindow->GetHwnd(), NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER);
