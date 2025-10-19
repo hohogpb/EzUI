@@ -5,6 +5,10 @@
 #include "EzUIHelper.h"
 
 using Microsoft::WRL::ComPtr;
+using std::weak_ptr;
+using std::unique_ptr;
+using std::vector;
+using std::shared_ptr;
 
 class UIElement {
 public:
@@ -20,8 +24,12 @@ public:
 
   Gdiplus::Image* bgImage = nullptr;
 
+  int zDepth;
+
   YGNodeRef ygNode;
-  std::vector<UIElement*> children;
+
+  UIElement* parent;
+  vector<UIElement*> children;
 
   UIElement(const std::wstring& n = L"") : tag(n) {
     ygNode = YGNodeNew();
@@ -29,12 +37,15 @@ public:
   }
 
   virtual ~UIElement() {
-    for (auto c : children) delete c;
+    for (auto child : children) {
+      delete child;
+    }
     delete bgImage;
     YGNodeFree(ygNode);
   }
 
   void AddChild(UIElement* child) {
+    child->parent = this;   // ÉèÖÃ parent
     children.push_back(child);
     YGNodeInsertChild(ygNode, child->ygNode, YGNodeGetChildCount(ygNode));
   }
@@ -55,6 +66,8 @@ public:
 
   static EzUI::RectF GetAbsoluteRect(YGNodeRef node);
 
+  void OnMouseLeave();
+  void OnMouseEnter();
 protected:
   ComPtr<IDWriteTextFormat> mTextFormat;
   ComPtr<IDWriteTextLayout> mTextLayout;

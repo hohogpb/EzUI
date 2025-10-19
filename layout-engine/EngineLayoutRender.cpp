@@ -11,6 +11,7 @@
 using std::stack;
 using std::pair;
 using Microsoft::WRL::ComPtr;
+using namespace EzUI;
 
 ComPtr<ID2D1Factory> gD2DFactory;
 ComPtr<ID2D1HwndRenderTarget> gRenderTarget;
@@ -20,6 +21,8 @@ ComPtr<IDWriteFactory> gDWriteFactory;
 // 全局 UI 树
 //----------------------------------------------
 UIElement* uiRoot = nullptr;
+
+UIElement* lastHittedUiNode = nullptr;
 
 //----------------------------------------------
 // 布局初始化
@@ -105,17 +108,18 @@ void EngineLayout_PerformLayout(UIElement* root, float width, float height) {
 
   YGNodeCalculateLayout(root->ygNode, YGUndefined, YGUndefined, YGDirectionLTR);
 
-  // 更新每个ui节点的rect
+  // 更新每个ui节点的rect 和深度
   std::stack<UIElement*> nodeStack;
   nodeStack.push(root);
+
 
   while (!nodeStack.empty()) {
     auto node = nodeStack.top();
     nodeStack.pop();
 
-    node->rect = UIElement::GetAbsoluteRect(node->ygNode);     
+    node->rect = UIElement::GetAbsoluteRect(node->ygNode);
 
-    for (auto child : node->children) {
+    for (auto& child : node->children) {
       nodeStack.push(child);
     }
   }
@@ -171,8 +175,54 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
     gRenderTarget.Reset();
 
 }
- 
-void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
-  
-  std::cout << "point in root:" << EzUI::IsIntersect(EzUI::PointF(x, y), uiRoot->rect) << std::endl;
+
+void EngineLayout_SetHittedUIElement(UIElement* uiNode) {
+  if (uiNode == lastHittedUiNode) {
+    // mouse move
+    return;
+  }
+
+  if (lastHittedUiNode)
+    lastHittedUiNode->OnMouseLeave();
+
+  lastHittedUiNode = uiNode;
+
+  lastHittedUiNode->OnMouseEnter();
 }
+
+void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
+  PointF mousePt(x, y);
+
+  struct HitContext {
+    UIElement* node;
+    int level;
+  };
+
+  int maxLevel = -1;
+  UIElement* maxLevelNode = nullptr;
+
+  stack<HitContext> uiNodeStack;
+  uiNodeStack.push({ uiRoot, 0 });
+
+  while (!uiNodeStack.empty()) {
+    auto [uiNode, level] = uiNodeStack.top();
+    uiNodeStack.pop();
+
+    if (!IsIntersect(mousePt, uiNode->rect)) {
+      continue;
+    }
+
+    if (level > maxLevel) {
+      maxLevel = level;
+      maxLevelNode = uiNode;
+    }
+
+    for (auto it = uiNode->children.rbegin(); it != uiNode->children.rend(); ++it) {
+      uiNodeStack.push({ *it, level + 1 });
+    }
+  }
+
+  EngineLayout_SetHittedUIElement(maxLevelNode);
+
+}
+

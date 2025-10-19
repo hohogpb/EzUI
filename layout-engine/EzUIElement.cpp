@@ -218,3 +218,14 @@ YGSize UIElement::MesureText(float maxWidth, float maxHeight) {
 
   return size;
 }
+
+
+void UIElement::OnMouseLeave() {
+  std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
+}
+
+void UIElement::OnMouseEnter() {
+  std::wcout << tag << L" " << name << L"OnMouseEnter()" << std::endl;
+
+  
+}
