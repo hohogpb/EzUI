@@ -37,9 +37,9 @@ private:
   wchar_t buffer[256];
 };
 
-void WinConsole::Init() {
-//#ifdef _DEBUG
-  // 创建控制台（如果是 GUI 子系统）
+WinConsole::WinConsole() {
+  //#ifdef _DEBUG
+    // 创建控制台（如果是 GUI 子系统）
   AllocConsole();
 
   FILE* fp;
@@ -54,9 +54,9 @@ void WinConsole::Init() {
 
   std::ios::sync_with_stdio(true);
 
-// 测试输出
-//  std::wcout << L"直接绑定 WriteConsoleW 的 std::wcout 测试：" << std::endl;
-//  std::wcout << L"中文测试：你好，世界！" << std::endl;
-//  std::wcout << L"Emoji 也试试：🚀" << std::endl;
-//#endif
+  // 测试输出
+  //  std::wcout << L"直接绑定 WriteConsoleW 的 std::wcout 测试：" << std::endl;
+  //  std::wcout << L"中文测试：你好，世界！" << std::endl;
+  //  std::wcout << L"Emoji 也试试：🚀" << std::endl;
+  //#endif
 }

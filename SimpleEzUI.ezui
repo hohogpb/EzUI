@@ -1,16 +1,15 @@
 <!-- 根节点 -->
-<Window padding ="10" width="800" height="600" >
-  <Video position="absolute" left="0" top="0" width="100%" height="100%"
-      ></Video>
+<Window name="window" padding ="10" width="800" height="600" >
+  <Video name="video" position="absolute" left="0" top="0" width="100%" height="100%"></Video>
 
-  <UI position="absolute" left="0" top="0" width="100%" height="100%"
+  <UI name="control-layer" position="absolute" left="0" top="0" width="100%" height="100%"
     background-color="#000000ff" justify-content="space-between">
 
     <!-- 左边栏 -->
-    <TitleBar name="Sidebar" height="0" background-color="#FF00ff55" >
+    <TitleBar name="Titlebar" height="40" background-color="#FFFFFF22" >
     </TitleBar>
 
-    <div name="bottom" height="50" padding-top="3" padding-left="12" padding-right="12" margin-bottom="3" >
+    <div name="bottom" height="50" padding-top="3"  padding-left="12" padding-right="12" margin-bottom="3" >
       <div name="progress-bar-container" height="3" >
         <div name="progress-bar" height="100%" background="#ffffff55">
           <div name="progress-container" height="100%" position="relative">
@@ -18,7 +17,7 @@
             <div name="hover-progress" width="60%" height="100%" position="absolute" background="rgba(255, 255, 255, .5)"></div>
           </div>
 
-          <div name="scrubber-container">
+          <div name="scrubber-container" >
             <div name="scrubber-button"></div>
           </div>
         </div>

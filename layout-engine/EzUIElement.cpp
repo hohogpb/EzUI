@@ -4,7 +4,7 @@
 using Microsoft::WRL::ComPtr;
 extern ComPtr<IDWriteFactory> gDWriteFactory;
 
-YogaAbsoluteRect GetAbsoluteRect(YGNodeRef node) {
+EzUI::RectF UIElement::GetAbsoluteRect(YGNodeRef node) {
   float left = YGNodeLayoutGetLeft(node);
   float top = YGNodeLayoutGetTop(node);
   float width = YGNodeLayoutGetWidth(node);
@@ -26,6 +26,7 @@ YogaAbsoluteRect GetAbsoluteRect(YGNodeRef node) {
   return { left, top, width, height };
 }
 
+#if 0
 void UIElement::OnRender(Graphics& g) {
   YogaAbsoluteRect rect = GetAbsoluteRect(ygNode);
 
@@ -41,22 +42,28 @@ void UIElement::OnRender(Graphics& g) {
   for (auto c : children)
     c->OnRender(g);
 }
-
+#endif
 
 void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
-  YogaAbsoluteRect ygRect = GetAbsoluteRect(ygNode);
+  EzUI::Rect ygRect = GetAbsoluteRect(ygNode);
+
+  auto myRect = this->rect;
+
+  if (ygRect.x != myRect.x || ygRect.y != myRect.y ||
+    ygRect.width != myRect.width || ygRect.height != myRect.height) {
+    // invalid rect
+    return;
+  }
 
   // Create a SolidBrush for the background color.
   ID2D1SolidColorBrush* selBrush = nullptr;
   rt->CreateSolidColorBrush(
-    D2D1::ColorF(backgroundColor.GetR(), backgroundColor.GetG(), backgroundColor.GetB(), backgroundColor.GetA() / 255.f),
+    D2D1::ColorF(bgColor.r, bgColor.g, bgColor.b, bgColor.a / 255.f),
     &selBrush
   );
 
-  D2D1_RECT_F rect = D2D1::RectF(
-    ygRect.left, ygRect.top,
-    ygRect.left + ygRect.width, ygRect.top + ygRect.height
-  );
+
+  D2D1_RECT_F rect = D2D1::RectF(ygRect.x, ygRect.y, ygRect.right(), ygRect.bottom());
   rt->FillRectangle(rect, selBrush);
 
   if (selBrush)
@@ -88,12 +95,14 @@ void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
     }
   }
 
+#if 0
   for (auto c : children)
     c->OnRenderD2D(rt);
+#endif
 }
 
 
-void UIElement::DrawSvg(ID2D1HwndRenderTarget* rt, YogaAbsoluteRect ygRect) {
+void UIElement::DrawSvg(ID2D1HwndRenderTarget* rt, EzUI::RectF ygRect) {
   // this requires Windows 10 1703
   ComPtr<ID2D1DeviceContext5> dc;
   rt->QueryInterface(dc.GetAddressOf());
@@ -120,7 +129,7 @@ void UIElement::DrawSvg(ID2D1HwndRenderTarget* rt, YogaAbsoluteRect ygRect) {
   dc->GetTransform(&oldTransform);
 
   // 设置新的变换
-  auto transform = D2D1::Matrix3x2F::Translation(ygRect.left, ygRect.top);
+  auto transform = D2D1::Matrix3x2F::Translation(ygRect.x, ygRect.y);
   dc->SetTransform(transform);
 
   if (svgDoc) {

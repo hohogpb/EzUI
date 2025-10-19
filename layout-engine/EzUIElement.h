@@ -2,15 +2,9 @@
 
 #include <gdiplus.h>
 #include "yoga/Yoga.h"
+#include "EzUIHelper.h"
 
-using namespace Gdiplus;
 using Microsoft::WRL::ComPtr;
-
-struct RectF32 { float x, y, w, h; };
-
-struct YogaAbsoluteRect {
-  float left, top, width, height;
-};
 
 class UIElement {
 public:
@@ -19,12 +13,15 @@ public:
   std::wstring docText;
   std::wstring text;
 
+  EzUI::RectF rect;
+
+  EzUI::Color color{ 0, 0, 0 };
+  EzUI::Color bgColor{ 255 , 255, 255, 0 };
+
+  Gdiplus::Image* bgImage = nullptr;
+
   YGNodeRef ygNode;
   std::vector<UIElement*> children;
-  RectF32 rect{};
-  Color color{ 0, 0, 0 };
-  Color backgroundColor{ 0 , 255, 255, 255 };
-  Image* backgroundImage = nullptr;
 
   UIElement(const std::wstring& n = L"") : tag(n) {
     ygNode = YGNodeNew();
@@ -33,7 +30,7 @@ public:
 
   virtual ~UIElement() {
     for (auto c : children) delete c;
-    delete backgroundImage;
+    delete bgImage;
     YGNodeFree(ygNode);
   }
 
@@ -42,11 +39,11 @@ public:
     YGNodeInsertChild(ygNode, child->ygNode, YGNodeGetChildCount(ygNode));
   }
 
-  virtual void OnRender(Graphics& g);
+  // virtual void OnRender(Graphics& g);
 
   virtual void OnRenderD2D(ID2D1HwndRenderTarget* rt);
 
-  virtual void DrawSvg(ID2D1HwndRenderTarget* rt, YogaAbsoluteRect rect);
+  virtual void DrawSvg(ID2D1HwndRenderTarget* rt, EzUI::RectF rect);
 
   virtual IDWriteTextFormat* GetTextFormat();
 
@@ -55,6 +52,8 @@ public:
   virtual IDWriteTextLayout* UpdateTextLayout(float maxWidth, float maxHeight);
 
   YGSize MesureText(float maxWidth, float maxHeight);
+
+  static EzUI::RectF GetAbsoluteRect(YGNodeRef node);
 
 protected:
   ComPtr<IDWriteTextFormat> mTextFormat;

@@ -3,6 +3,9 @@
 
 class WinConsole {
 public:
-  static void Init();
+  WinConsole();
+
+  WinConsole(const WinConsole&) = delete;
+  WinConsole& operator=(const WinConsole&) = delete;
 };
 

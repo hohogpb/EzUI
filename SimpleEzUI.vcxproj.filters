@@ -90,6 +90,15 @@
     <ClInclude Include="layout-engine\EzUITextFormatCaches.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="layout-engine\EzUIHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\GdiPlusScope.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\ComScope.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleEzUI.cpp">
@@ -156,6 +165,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\EzUITextFormatCaches.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUIHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\GdiPlusScope.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\ComScope.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

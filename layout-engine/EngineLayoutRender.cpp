@@ -3,7 +3,6 @@
 
 #include "pch.h"
 #include "EngineLayoutRender.h"
-#include <gdiplus.h>
 #include "yoga/Yoga.h"
 #include "EzUIDocParser.h"
 #include "EzUIElement.h"
@@ -12,30 +11,10 @@
 using std::stack;
 using std::pair;
 using Microsoft::WRL::ComPtr;
-using namespace Gdiplus;
-
-GdiplusStartupInput gdiplusStartupInput;
-ULONG_PTR gdiplusToken;
-
-void EngineLayout_InitGDIPlus() {
-  GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-}
-
 
 ComPtr<ID2D1Factory> gD2DFactory;
 ComPtr<ID2D1HwndRenderTarget> gRenderTarget;
 ComPtr<IDWriteFactory> gDWriteFactory;
-
-//----------------------------------------------
-// 布局计算
-//----------------------------------------------
-void EngineLayout_PerformLayout(UIElement* root, float width, float height) {
-  // 设置根布局大小
-  YGNodeStyleSetWidth(root->ygNode, (float)width);
-  YGNodeStyleSetHeight(root->ygNode, (float)height);
-
-  YGNodeCalculateLayout(root->ygNode, YGUndefined, YGUndefined, YGDirectionLTR);
-}
 
 //----------------------------------------------
 // 全局 UI 树
@@ -61,7 +40,7 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   }
 
   if (!gDWriteFactory)
-    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&gDWriteFactory); 
+    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&gDWriteFactory);
 
 
   EzUIDocParser parser;
@@ -116,6 +95,32 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
 
 }
 
+//----------------------------------------------
+// 布局计算
+//----------------------------------------------
+void EngineLayout_PerformLayout(UIElement* root, float width, float height) {
+  // 设置根布局大小
+  YGNodeStyleSetWidth(root->ygNode, (float)width);
+  YGNodeStyleSetHeight(root->ygNode, (float)height);
+
+  YGNodeCalculateLayout(root->ygNode, YGUndefined, YGUndefined, YGDirectionLTR);
+
+  // 更新每个ui节点的rect
+  std::stack<UIElement*> nodeStack;
+  nodeStack.push(root);
+
+  while (!nodeStack.empty()) {
+    auto node = nodeStack.top();
+    nodeStack.pop();
+
+    node->rect = UIElement::GetAbsoluteRect(node->ygNode);     
+
+    for (auto child : node->children) {
+      nodeStack.push(child);
+    }
+  }
+}
+
 void EngineLayout_Resize(EzUIWindow* wnd, int width, int height) {
   // 调整 RenderTarget 大小
   if (gRenderTarget) {
@@ -141,12 +146,33 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
   gRenderTarget->BeginDraw();
   gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
+#if 0
   if (uiRoot)
     uiRoot->OnRenderD2D(gRenderTarget.Get());
+#endif
+
+  stack<UIElement*> uiNodeStack;
+  uiNodeStack.push(uiRoot);
+
+  while (!uiNodeStack.empty()) {
+    auto uiNode = uiNodeStack.top();
+    uiNodeStack.pop();
+
+    // 绘制边框
+    uiNode->OnRenderD2D(gRenderTarget.Get());
+
+    for (auto it = uiNode->children.rbegin(); it != uiNode->children.rend(); ++it) {
+      uiNodeStack.push(*it);
+    }
+  }
 
   HRESULT hr = gRenderTarget->EndDraw();
   if (hr == D2DERR_RECREATE_TARGET)
     gRenderTarget.Reset();
 
 }
-
+ 
+void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
+  
+  std::cout << "point in root:" << EzUI::IsIntersect(EzUI::PointF(x, y), uiRoot->rect) << std::endl;
+}

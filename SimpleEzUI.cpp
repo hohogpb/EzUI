@@ -14,6 +14,8 @@
 #include <locale>
 #include <utils/WinConsole.h>
 #include <utils/DumpInfo.h>
+#include <utils/GdiPlusScope.h>
+#include <utils/ComScope.h>
 
 EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
@@ -50,7 +52,7 @@ static void CreateWindows(HINSTANCE hInstance) {
         GetWindowRect(appWindow->GetHwnd(), &rc);
         rc.right = rc.left + (LONG)width.value;
         rc.bottom = rc.top + (LONG)height.value;
- 
+
         ::SetWindowPos(appWindow->GetHwnd(), NULL, rc.left, rc.top, width.value, height.value, SWP_FRAMECHANGED);
 #endif
       }
@@ -78,13 +80,11 @@ static void CreateWindows(HINSTANCE hInstance) {
   };
 
   appWindow->MouseMove += [&](EzUIAppWindow* appWnd, int x, int y) {
-    // 鼠标移动到主窗口时也触发子窗口的鼠标移动事件
-    std::wcout << L"mouse move : " << x << L"," << y << std::endl;
-    std::cout << "mouse move : " << x << "," << y << std::endl;
+    EngineLayout_HitTest(appWnd, x, y);
   };
 
   appWindow->Create();
-  
+
 }
 
 static void HotReloadInit() {
@@ -101,13 +101,9 @@ static void HotReloadInit() {
 }
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-
-  HRESULT Hr = ::CoInitialize(NULL);
-  if (FAILED(Hr))  return 0;
-
-  WinConsole::Init();
-
-  EngineLayout_InitGDIPlus();
+  ComScope com; 
+  GdiPlusScope gdip;
+  WinConsole console;
 
   CreateWindows(hInstance);
 
@@ -115,8 +111,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
   EzUIApp app(hInstance);
   int nRet = app.Run();
-
-  ::CoUninitialize();
 
   return nRet;
 }

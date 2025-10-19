@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cwctype> 
+#include "EzUIHelper.h"
 
 using std::unordered_map;
 using std::wstring;
@@ -44,7 +45,7 @@ inline std::wstring Trim(const std::wstring& s) {
 }
 
 // HSL to RGB conversion helper
-Color HslToRgb(float h, float s, float l, float a) {
+EzUI::Color HslToRgb(float h, float s, float l, float a) {
   float r, g, b;
   if (s == 0.0f) {
     r = g = b = l; // achromatic
@@ -63,25 +64,32 @@ Color HslToRgb(float h, float s, float l, float a) {
     g = hue2rgb(p, q, h);
     b = hue2rgb(p, q, h - 1.0f / 3.0f);
   }
-  return Color((BYTE)(a * 255), (BYTE)(r * 255), (BYTE)(g * 255), (BYTE)(b * 255));
+  return { (BYTE)(r * 255), (BYTE)(g * 255), (BYTE)(b * 255), (BYTE)(a * 255) };
 }
 
-
-static const std::unordered_map<std::wstring, Color> namedColors = {
-    {L"black", Color(255, 0, 0, 0)}, {L"silver", Color(255, 192, 192, 192)},
-    {L"gray", Color(255, 128, 128, 128)}, {L"white", Color(255, 255, 255, 255)},
-    {L"maroon", Color(255, 128, 0, 0)}, {L"red", Color(255, 255, 0, 0)},
-    {L"purple", Color(255, 128, 0, 128)}, {L"fuchsia", Color(255, 255, 0, 255)},
-    {L"green", Color(255, 0, 128, 0)}, {L"lime", Color(255, 0, 255, 0)},
-    {L"olive", Color(255, 128, 128, 0)}, {L"yellow", Color(255, 255, 255, 0)},
-    {L"navy", Color(255, 0, 0, 128)}, {L"blue", Color(255, 0, 0, 255)},
-    {L"teal", Color(255, 0, 128, 128)}, {L"aqua", Color(255, 0, 255, 255)},
-    {L"transparent", Color(0, 0, 0, 0)},
+static const std::unordered_map<std::wstring, EzUI::Color> namedColors = {
+  {L"black",       {  0,   0,   0, 255}},
+  {L"silver",      {192, 192, 192, 255}},
+  {L"gray",        {128, 128, 128, 255}},
+  {L"white",       {255, 255, 255, 255}},
+  {L"maroon",      {128,   0,   0, 255}},
+  {L"red",         {255,   0,   0, 255}},
+  {L"purple",      {128,   0, 128, 255}},
+  {L"fuchsia",     {255,   0, 255, 255}},
+  {L"green",       {  0, 128,   0, 255}},
+  {L"lime",        {  0, 255,   0, 255}},
+  {L"olive",       {128, 128,   0, 255}},
+  {L"yellow",      {255, 255,   0, 255}},
+  {L"navy",        {  0,   0, 128, 255}},
+  {L"blue",        {  0,   0, 255, 255}},
+  {L"teal",        {  0, 128, 128, 255}},
+  {L"aqua",        {  0, 255, 255, 255}},
+  {L"transparent", {  0,    0,  0,   0}}
 };
 
-Color ParseColor(const std::wstring& str) {
+EzUI::Color ParseColor(const std::wstring& str) {
   std::wstring lowerStr = ToLower(Trim(str));
-  if (lowerStr.empty()) return Color(255, 255, 255, 255);
+  if (lowerStr.empty()) return { 255, 255, 255, 255 };
 
   // 1. Named colors
   auto it = namedColors.find(lowerStr);
@@ -96,7 +104,7 @@ Color ParseColor(const std::wstring& str) {
     try {
       hex = std::stoul(s.substr(1), nullptr, 16);
     } catch (...) {
-      return Color(255, 255, 255, 255);
+      return { 255, 255, 255, 255 };
     }
     BYTE r, g, b, a = 255;
     switch (s.size()) {
@@ -123,9 +131,9 @@ Color ParseColor(const std::wstring& str) {
       a = hex & 0xFF;
       break;
     default:
-      return Color(255, 255, 255, 255);
+      return { 255, 255, 255, 255 };
     }
-    return Color(a, r, g, b);
+    return { r, g, b, a };
   }
 
   // 3. rgb, rgba, hsl, hsla
@@ -143,10 +151,10 @@ Color ParseColor(const std::wstring& str) {
 
     try {
       if (type == L"rgb" && values.size() == 3) {
-        return Color(255, (BYTE)std::stoi(values[0]), (BYTE)std::stoi(values[1]), (BYTE)std::stoi(values[2]));
+        return { (BYTE)std::stoi(values[0]), (BYTE)std::stoi(values[1]), (BYTE)std::stoi(values[2]), 255 };
       }
       if (type == L"rgba" && values.size() == 4) {
-        return Color((BYTE)(std::stof(values[3]) * 255), (BYTE)std::stoi(values[0]), (BYTE)std::stoi(values[1]), (BYTE)std::stoi(values[2]));
+        return { (BYTE)std::stoi(values[0]), (BYTE)std::stoi(values[1]), (BYTE)std::stoi(values[2]), (BYTE)(std::stof(values[3]) * 255) };
       }
       if (type == L"hsl" && values.size() == 3) {
         float h = std::stof(values[0]) / 360.0f;
@@ -162,11 +170,11 @@ Color ParseColor(const std::wstring& str) {
         return HslToRgb(h, s, l, a);
       }
     } catch (...) {
-      return Color(255, 255, 255, 255);
+      return { 255, 255, 255, 255 };
     }
   }
 
-  return Color(255, 255, 255, 255); // Default fallback
+  return { 255, 255, 255, 255 }; // Default fallback
 }
 
 static unordered_map<wstring, YGAlign> alignMap = {
@@ -255,7 +263,7 @@ void SetMaybePercent(YGNodeRef node, const wstring& val, Setter setFunc, SetterP
 }
 
 static void colorResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
-  Color c = ParseColor(val);
+  EzUI::Color c = ParseColor(val);
   uiNode->color = c;
 }
 
@@ -345,8 +353,8 @@ static void alignContentResolver(const wstring& key, const wstring& val, UIEleme
 }
 
 static void backgroundColorResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
-  Color c = ParseColor(val);
-  uiNode->backgroundColor = c;
+  EzUI::Color c = ParseColor(val);
+  uiNode->bgColor = c;
 }
 
 static void backgroundImageResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
@@ -360,16 +368,16 @@ static void backgroundImageResolver(const wstring& key, const wstring& val, UIEl
       if (path.length() >= 2 && path.front() == L'"' && path.back() == L'"') {
         path = path.substr(1, path.length() - 2);
       }
-      delete uiNode->backgroundImage;
-      uiNode->backgroundImage = new Image(path.c_str());
-      if (uiNode->backgroundImage->GetLastStatus() != Ok) {
-        delete uiNode->backgroundImage;
-        uiNode->backgroundImage = nullptr;
+      delete uiNode->bgImage;
+      uiNode->bgImage = new Gdiplus::Image(path.c_str());
+      if (uiNode->bgImage->GetLastStatus() != Gdiplus::Ok) {
+        delete uiNode->bgImage;
+        uiNode->bgImage = nullptr;
       }
     }
   } else if (lowerVal == L"none") {
-    delete uiNode->backgroundImage;
-    uiNode->backgroundImage = nullptr;
+    delete uiNode->bgImage;
+    uiNode->bgImage = nullptr;
   }
 }
 
