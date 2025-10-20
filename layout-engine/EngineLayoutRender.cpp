@@ -13,6 +13,8 @@ using std::pair;
 using Microsoft::WRL::ComPtr;
 using namespace EzUI;
 
+extern EzUIWindow* mainWindow;
+
 ComPtr<ID2D1Factory> gD2DFactory;
 ComPtr<ID2D1HwndRenderTarget> gRenderTarget;
 ComPtr<IDWriteFactory> gDWriteFactory;
@@ -21,8 +23,8 @@ ComPtr<IDWriteFactory> gDWriteFactory;
 // 全局 UI 树
 //----------------------------------------------
 UIElement* uiRoot = nullptr;
-
 UIElement* lastHittedUiNode = nullptr;
+UIElement* lastFocusedUiNode = nullptr;
 
 //----------------------------------------------
 // 布局初始化
@@ -148,7 +150,7 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
 #endif
 
   gRenderTarget->BeginDraw();
-  gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+  //gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
 #if 0
   if (uiRoot)
@@ -184,10 +186,16 @@ void EngineLayout_SetHittedUIElement(UIElement* uiNode) {
 
   if (lastHittedUiNode)
     lastHittedUiNode->OnMouseLeave();
-
   lastHittedUiNode = uiNode;
-
   lastHittedUiNode->OnMouseEnter();
+}
+
+void EngineLayout_SetFocusUIElement() {
+  if (lastFocusedUiNode == lastHittedUiNode) {
+    return;
+  }
+  lastFocusedUiNode = lastHittedUiNode;
+  
 }
 
 void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
@@ -224,5 +232,22 @@ void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
 
   EngineLayout_SetHittedUIElement(maxLevelNode);
 
+  // apply hover effect  
+
+  // 如果有需要 刷新窗口
+  mainWindow->Invalidate();
 }
 
+
+void EngineLayout_LButtonDown(EzUIAppWindow* appWnd, int x, int y) {
+  EngineLayout_SetFocusUIElement();
+
+  mainWindow->Invalidate();
+};
+
+// 检测到鼠标左键弹起 要去实现ui元素的click了
+void EngineLayout_LButtonUp(EzUIAppWindow* appWnd, int x, int y) {
+  EngineLayout_SetFocusUIElement();
+
+  mainWindow->Invalidate();
+};

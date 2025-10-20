@@ -150,7 +150,7 @@ void DumpYogaTree(UIElement* root, int depth, std::wostream& os) {
   os << std::endl;
 
   // µÝ¹é×Ó½Úµã
-  for (auto child : root->children) {
+  for (auto& child : root->children) {
     DumpYogaTree(child, depth + 1, os);
   }
 }

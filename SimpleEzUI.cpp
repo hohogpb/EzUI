@@ -83,6 +83,14 @@ static void CreateWindows(HINSTANCE hInstance) {
     EngineLayout_HitTest(appWnd, x, y);
   };
 
+  appWindow->LButtonDown += [&](EzUIAppWindow* appWnd, int x, int y) {
+    EngineLayout_LButtonDown(appWnd, x, y);
+  };
+
+  appWindow->LButtonUp += [&](EzUIAppWindow* appWnd, int x, int y) {
+    EngineLayout_LButtonUp(appWnd, x, y);
+  };
+
   appWindow->Create();
 
 }

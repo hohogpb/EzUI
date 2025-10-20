@@ -31,6 +31,7 @@ public:
   UIElement* parent;
   vector<UIElement*> children;
 
+
   UIElement(const std::wstring& n = L"") : tag(n) {
     ygNode = YGNodeNew();
     YGNodeSetContext(ygNode, this);
@@ -68,8 +69,11 @@ public:
 
   void OnMouseLeave();
   void OnMouseEnter();
+
 protected:
   ComPtr<IDWriteTextFormat> mTextFormat;
   ComPtr<IDWriteTextLayout> mTextLayout;
-
+  
+  bool mIsHover = false;
+  bool mIsFocused;
 };

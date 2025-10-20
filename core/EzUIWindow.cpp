@@ -115,8 +115,10 @@ LRESULT CALLBACK EzUIWindow::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LP
   case WM_TIMER:
     pThis->OnTimer((UINT)wParam);
     return 0;
- case WM_NCHITTEST:
+  case WM_NCHITTEST:
     return HTTRANSPARENT; // 告诉系统：别处理，交给父窗口
+  case WM_ERASEBKGND:
+    return 0;
   }
 
   return DefWindowProc(hWnd, uMessage, wParam, lParam);
@@ -180,7 +182,7 @@ void EzUIWindow::OnTimer(UINT timerId) {
 }
 
 void EzUIWindow::Create(int x, int y, int width, int height, HWND parent) {
-// 
+  // 
   mWnd = CreateWindowEx(WS_EX_TRANSPARENT, EZUI_WND_CLASS, L"ezui_window", WS_CHILD | WS_VISIBLE,
     x, y, width, height, parent, NULL, mInst, (LPVOID)this);
 }

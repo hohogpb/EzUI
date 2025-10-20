@@ -76,6 +76,21 @@ void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
   }
 #endif
 
+
+  if (mIsHover) {
+    D2D1_LAYER_PARAMETERS params = D2D1::LayerParameters(
+      D2D1::InfiniteRect(), // 覆盖范围（可用 SVG 边界替代）
+      nullptr, // 无几何遮罩
+      D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
+      D2D1::IdentityMatrix(),  // 无变换
+      0.6, // 👈 这里设置透明度 0.0 ~ 1.0
+      nullptr,
+      D2D1_LAYER_OPTIONS_NONE
+    );
+
+    rt->PushLayer(params, nullptr);
+  }
+
   if (tag == L"svg") {
     DrawSvg(rt, ygRect);
   }
@@ -93,6 +108,10 @@ void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
     if (textLayout != nullptr) {
       rt->DrawTextLayout({ rect.left, rect.top }, textLayout, brush.Get());
     }
+  }
+
+  if (mIsHover) {
+    rt->PopLayer();
   }
 
 #if 0
@@ -220,12 +239,14 @@ YGSize UIElement::MesureText(float maxWidth, float maxHeight) {
 }
 
 
-void UIElement::OnMouseLeave() {
-  std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
+void UIElement::OnMouseEnter() {
+
+  mIsHover = true;
+  std::wcout << tag << L" " << name << L"OnMouseEnter()" << std::endl;
 }
 
-void UIElement::OnMouseEnter() {
-  std::wcout << tag << L" " << name << L"OnMouseEnter()" << std::endl;
-
-  
+// 只设置状态
+void UIElement::OnMouseLeave() {
+  mIsHover = false;
+  std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
 }

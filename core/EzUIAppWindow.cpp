@@ -125,11 +125,19 @@ static LRESULT ON_WM_CREATE(EzUIAppWindow* win, HWND hwnd, UINT msg, WPARAM w, L
 };
 
 static LRESULT ON_WM_PAINT(EzUIAppWindow* win, HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
+#if 1
+  win->Draw.emit(win, NULL);
+  return 0;
+#else
+  // 下面的代码会导致闪烁，
+  // 因为我们当前是在子窗口上绘制的 子窗口绘制之前，父窗口这次绘制会清空背景
   PAINTSTRUCT ps;
   HDC hdc = BeginPaint(hwnd, &ps);
   win->Draw.emit(win, hdc);
   EndPaint(hwnd, &ps);
   return 0;
+  return DefWindowProc(hwnd, msg, w, l);
+#endif
 };
 
 static LRESULT ON_WM_SIZE(EzUIAppWindow* win, HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
@@ -288,7 +296,7 @@ static LRESULT ON_WM_NCHITTEST(EzUIAppWindow* win, HWND hwnd, UINT uMessage, WPA
   case bottom | left: return borderless_resize ? HTBOTTOMLEFT : drag;
   case bottom | right: return borderless_resize ? HTBOTTOMRIGHT : drag;
   case client: {
-    ON_WM_MOUSEMOVE(win, hwnd, uMessage, wParam, MAKELPARAM( ptClient.x, ptClient.y));
+    ON_WM_MOUSEMOVE(win, hwnd, uMessage, wParam, MAKELPARAM(ptClient.x, ptClient.y));
     return drag;
   }
   default: return HTNOWHERE;
@@ -302,6 +310,10 @@ static LRESULT ON_WM_NCACTIVATE(EzUIAppWindow* window, HWND hwnd, UINT uMessage,
     return 1;
   }
   return DefWindowProc(hwnd, uMessage, wParam, lParam);
+}
+
+static LRESULT ON_WM_ERASEBKGND(EzUIAppWindow* window, HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+  return false;
 }
 
 static unordered_map<UINT, MsgHandler> msgHandlers = {
@@ -323,6 +335,7 @@ static unordered_map<UINT, MsgHandler> msgHandlers = {
   {WM_NCCALCSIZE, ON_WM_NCCALCSIZE},
   {WM_NCHITTEST, ON_WM_NCHITTEST},
   {WM_NCACTIVATE, ON_WM_NCACTIVATE},
+  {WM_ERASEBKGND, ON_WM_ERASEBKGND},
 };
 
 LRESULT EzUIAppWindow::OnMessage(UINT uMessage, WPARAM wParam, LPARAM lParam) {
