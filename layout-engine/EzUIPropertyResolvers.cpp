@@ -570,6 +570,14 @@ static void classResolver(const wstring& key, const wstring& val, UIElement* uiN
 
 }
 
+static void opacityResolver(const std::wstring& key, const std::wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+  float opacity = ParseFloat(val);
+  // Clamp opacity to [0, 1]
+  if (opacity < 0.0f) opacity = 0.0f;
+  if (opacity > 1.0f) opacity = 1.0f;  
+  uiNode->opacity =  opacity;
+}
+
 // 3. 声明并初始化 propertyResolverDict
 static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   // 可按需注册具体属性解析器 
@@ -626,6 +634,7 @@ static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   { L"viewbox", viewBoxResolver},
   // ...
   { L"class", classResolver},
+  { L"opacity", opacityResolver},
 };
 
 

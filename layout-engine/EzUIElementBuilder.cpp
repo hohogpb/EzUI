@@ -54,7 +54,7 @@ UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
     resolvers.Resolve(keyRaw, valueRaw, uiNode, ygNode);
   }
 
-
+  
 
 
   return uiNode;

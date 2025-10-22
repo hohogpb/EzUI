@@ -22,6 +22,8 @@ public:
   EzUI::Color color{ 0, 0, 0 };
   EzUI::Color bgColor{ 255 , 255, 255, 0 };
 
+  float opacity = 1.0f;
+
   Gdiplus::Image* bgImage = nullptr;
 
   int zDepth;

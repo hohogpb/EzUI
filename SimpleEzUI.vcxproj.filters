@@ -99,6 +99,15 @@
     <ClInclude Include="utils\ComScope.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="EzUICssParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUITextLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\wchar_utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleEzUI.cpp">
@@ -174,6 +183,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="utils\ComScope.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUICssParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUITextLoader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\wchar_utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

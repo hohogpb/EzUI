@@ -75,15 +75,15 @@ void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
     g.DrawImage(backgroundImage, rect.left, rect.top, rect.width, rect.height);
   }
 #endif
+  float finalOpacity = 0.5; // mIsHover ? 1 : opacity;
 
-
-  if (mIsHover) {
+  if (finalOpacity < 1.f) {
     D2D1_LAYER_PARAMETERS params = D2D1::LayerParameters(
       D2D1::InfiniteRect(), // 覆盖范围（可用 SVG 边界替代）
       nullptr, // 无几何遮罩
       D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
       D2D1::IdentityMatrix(),  // 无变换
-      0.6, // 👈 这里设置透明度 0.0 ~ 1.0
+      finalOpacity, // 👈 这里设置透明度 0.0 ~ 1.0
       nullptr,
       D2D1_LAYER_OPTIONS_NONE
     );
@@ -91,6 +91,7 @@ void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
     rt->PushLayer(params, nullptr);
   }
 
+  // svg要获取上层节点的opacity
   if (tag == L"svg") {
     DrawSvg(rt, ygRect);
   }
@@ -110,7 +111,7 @@ void UIElement::OnRenderD2D(ID2D1HwndRenderTarget* rt) {
     }
   }
 
-  if (mIsHover) {
+  if (finalOpacity < 1.f) {
     rt->PopLayer();
   }
 

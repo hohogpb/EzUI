@@ -191,6 +191,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EzUICssParser.h" />
+    <ClInclude Include="layout-engine\EzUITextLoader.h" />
     <ClInclude Include="utils\ComScope.h" />
     <ClInclude Include="core\EzUIAppWindow.h" />
     <ClInclude Include="core\EzUIWindow.h" />
@@ -219,8 +221,11 @@
     <ClInclude Include="SimpleEzUIConsole.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utils\WinConsole.h" />
+    <ClInclude Include="common\wchar_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="layout-engine\EzUITextLoader.cpp" />
+    <ClCompile Include="layout-engine\EzUICssParser.cpp" />
     <ClCompile Include="utils\ComScope.cpp" />
     <ClCompile Include="core\EzUIAppWindow.cpp" />
     <ClCompile Include="core\EzUIWindow.cpp" />
@@ -253,6 +258,7 @@
     <ClCompile Include="SimpleEzUI.cpp" />
     <ClCompile Include="SimpleEzUIConsole.cpp" />
     <ClCompile Include="utils\WinConsole.cpp" />
+    <ClCompile Include="common\wchar_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SimpleEzUI.rc" />

@@ -9,17 +9,6 @@ class EzUIDocParser {
 public:
   EzUIDocParser() : mSrc(), mPos(0) {}
 
-  static std::wstring ReadFile(const std::wstring& filename);
-  static std::wstring Trim(const std::wstring_view& s);
-
-  static bool IsSpace(wchar_t c) { return std::iswspace(c); }
-  static bool IsAlpha(wchar_t c) { return std::iswalpha(c); }
-  static bool IsDigit(wchar_t c) { return std::iswdigit(c); }
-  static bool IsAlnum(wchar_t c) { return std::iswalnum(c); }
-  static bool IsPunct(wchar_t c) { return std::iswpunct(c); }
-  static bool IsUpper(wchar_t c) { return std::iswupper(c); }
-  static bool IsLower(wchar_t c) { return std::iswlower(c); }
-
   std::unique_ptr<EzUIDocNode> ParseFile(const std::wstring& docPath);
   std::unique_ptr<EzUIDocNode> ParseText(const std::wstring& docText);
 
