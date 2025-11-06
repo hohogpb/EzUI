@@ -54,9 +54,6 @@
     <ClInclude Include="layout-engine\EzUIDocParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleEzUIConsole.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="layout-engine\EzUIElement.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -99,13 +96,25 @@
     <ClInclude Include="utils\ComScope.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EzUICssParser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="layout-engine\EzUITextLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="common\wchar_utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUIParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUICssParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\test_css_parser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\test_doc_parser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUICssNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -138,9 +147,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\EzUIDocParser.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="SimpleEzUIConsole.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\EzUIElement.cpp">
@@ -194,6 +200,18 @@
     <ClCompile Include="common\wchar_utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="layout-engine\EzUIParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_css_parser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_doc_parser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUICssNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SimpleEzUI.rc">
@@ -211,5 +229,6 @@
   <ItemGroup>
     <None Include="main.ezui" />
     <None Include="SimpleEzUI.ezui" />
+    <None Include="SimpleEzUI.css" />
   </ItemGroup>
 </Project>

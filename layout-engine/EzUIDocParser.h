@@ -4,34 +4,28 @@
 #include <cwctype>
 #include <string_view>
 #include "EzUIDocNode.h"
+#include "EzUIParser.h"
 
-class EzUIDocParser {
+
+class EzUIDocParser : public EzUIParser {
 public:
-  EzUIDocParser() : mSrc(), mPos(0) {}
+  static std::unique_ptr<EzUIDocNode> Parse(const std::wstring& src);
 
-  std::unique_ptr<EzUIDocNode> ParseFile(const std::wstring& docPath);
-  std::unique_ptr<EzUIDocNode> ParseText(const std::wstring& docText);
+  EzUIDocParser(const std::wstring_view& src) :EzUIParser(src) {}
 
-private:
-  std::wstring_view mSrc;
-  size_t mPos;
-
-  bool StartsWith(const std::wstring_view& s) const;
-
-  wchar_t Peek() const;
-
-  wchar_t Get();
-
-  void SkipWhitespace();
-
-  void SkipComment();
-
-  std::wstring ParseIdentifier();
-
-  std::wstring ParseQuotedString();
+protected:
+  std::vector<std::unique_ptr<EzUIDocNode>> ParseNodes();
 
   std::unique_ptr<EzUIDocNode> ParseNode();
 
-  std::unique_ptr<EzUIDocNode> Parse();
-};
+  std::unique_ptr<EzUIDocNode> ParseComment();
 
+  std::unique_ptr<EzUIDocNode> ParseElement();
+  std::wstring ParseName();
+  std::unordered_map<std::wstring, std::wstring> ParseAttributes();
+  std::pair<std::wstring, std::wstring> ParseAttr();
+  std::wstring ParseAttrValue();
+
+  std::unique_ptr<EzUIDocNode> ParseText();
+
+};

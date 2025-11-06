@@ -7,6 +7,7 @@
 #include "EzUIDocParser.h"
 #include "EzUIElement.h"
 #include "EzUITreeBuilder.h"
+#include "EzUITextLoader.h"
 
 using std::stack;
 using std::pair;
@@ -48,13 +49,18 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
     DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&gDWriteFactory);
 
 
-  EzUIDocParser parser;
-  auto domRoot = parser.ParseFile(L"SimpleEzUI.ezui");
+  EzUITextLoader loader;
+  auto text = loader.Load(L"SimpleEzUI.ezui");
+
+  auto domRoot = EzUIDocParser::Parse(text);
   while (!domRoot) {
     //MessageBoxA(NULL, "Failed to load SimpleEzUI.ezui", "Error", MB_OK | MB_ICONERROR);
     //return;
     std::wcout << L"打开ui文件失败，再次尝试\n";
-    domRoot = parser.ParseFile(L"SimpleEzUI.ezui");
+    EzUITextLoader loader;
+    auto text = loader.Load(L"SimpleEzUI.ezui");
+
+    domRoot = EzUIDocParser::Parse(text);
   }
 
 #if 1
@@ -141,21 +147,8 @@ void EngineLayout_Resize(EzUIWindow* wnd, int width, int height) {
 }
 
 void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
-#if 0  
-  Graphics g(hdc);
-  g.Clear(Color(255, 245, 245, 245));
-
-  if (uiRoot)
-    uiRoot->OnRender(g);
-#endif
-
   gRenderTarget->BeginDraw();
-  //gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-#if 0
-  if (uiRoot)
-    uiRoot->OnRenderD2D(gRenderTarget.Get());
-#endif
+  gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
   stack<UIElement*> uiNodeStack;
   uiNodeStack.push(uiRoot);
@@ -175,7 +168,6 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
   HRESULT hr = gRenderTarget->EndDraw();
   if (hr == D2DERR_RECREATE_TARGET)
     gRenderTarget.Reset();
-
 }
 
 void EngineLayout_SetHittedUIElement(UIElement* uiNode) {
@@ -195,7 +187,7 @@ void EngineLayout_SetFocusUIElement() {
     return;
   }
   lastFocusedUiNode = lastHittedUiNode;
-  
+
 }
 
 void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {

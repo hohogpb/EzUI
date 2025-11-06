@@ -1,19 +1,22 @@
 #include "pch.h"
-#include "SimpleEzUIConsole.h"
+#include "test_doc_parser.h"
 #include "layout-engine/EzUIDocParser.h"
 #include "layout-engine/EzUIElement.h"
 #include "layout-engine/EzUITreeBuilder.h"
 #include <fcntl.h>
 #include <io.h>
 #include <utils/DumpInfo.h>
+#include "layout-engine/EzUITextLoader.h"
 
-
+#if 0
 int main() {
   //SetConsoleOutputCP(CP_UTF8);        // Лђеп CP_UTF16
   _setmode(_fileno(stdout), _O_U16TEXT);
 
-  EzUIDocParser parser;
-  auto domRoot = parser.ParseFile(L"SimpleEzUI.ezui");
+  EzUITextLoader loader;
+  auto source = loader.Load(L"SimpleEzUI.ezui");
+  
+  auto domRoot = EzUIDocParser::Parse(source);   
 
   PrintXmlTree(domRoot.get());
 
@@ -79,3 +82,4 @@ int main() {
 #endif
   return 0;
 }
+#endif
