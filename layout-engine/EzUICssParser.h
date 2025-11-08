@@ -4,12 +4,12 @@
 #include <cwctype>
 #include <string_view>
 #include "EzUIDocNode.h"
-#include "EzUIParser.h"
+#include "EzUIBaseParser.h"
 #include "EzUICssNode.h"
 
-class EzUICssParser : public EzUIParser {
+class EzUICssParser : public EzUIBaseParser {
 public:
-  EzUICssParser(const std::wstring_view& src) :EzUIParser(src) {}
+  EzUICssParser(const std::wstring_view& src) :EzUIBaseParser(src) {}
 
   static std::unique_ptr<Stylesheet> Parse(const std::wstring& src);
 

@@ -4,14 +4,14 @@
 #include <cwctype>
 #include <string_view>
 #include "EzUIDocNode.h"
-#include "EzUIParser.h"
+#include "EzUIBaseParser.h"
 
 
-class EzUIDocParser : public EzUIParser {
+class EzUIDocParser : public EzUIBaseParser {
 public:
   static std::unique_ptr<EzUIDocNode> Parse(const std::wstring& src);
 
-  EzUIDocParser(const std::wstring_view& src) :EzUIParser(src) {}
+  EzUIDocParser(const std::wstring_view& src) :EzUIBaseParser(src) {}
 
 protected:
   std::vector<std::unique_ptr<EzUIDocNode>> ParseNodes();

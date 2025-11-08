@@ -8,6 +8,8 @@
 #include "EzUIElement.h"
 #include "EzUITreeBuilder.h"
 #include "EzUITextLoader.h"
+#include "EzUICssParser.h"
+#include "EzUiStyleTreeBuilder.h"
 
 using std::stack;
 using std::pair;
@@ -27,11 +29,7 @@ UIElement* uiRoot = nullptr;
 UIElement* lastHittedUiNode = nullptr;
 UIElement* lastFocusedUiNode = nullptr;
 
-//----------------------------------------------
-// 布局初始化
-//----------------------------------------------
-void EngineLayout_InitUILayout(EzUIWindow* wnd) {
-  // D2D
+void InitD2D(EzUIWindow* wnd) {
   if (!gD2DFactory)
     D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, gD2DFactory.GetAddressOf());
 
@@ -47,34 +45,44 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
 
   if (!gDWriteFactory)
     DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&gDWriteFactory);
+}
 
+//----------------------------------------------
+// 布局初始化
+//----------------------------------------------
+void EngineLayout_InitUILayout(EzUIWindow* wnd) {
+  // D2D
+  InitD2D(wnd);
 
   EzUITextLoader loader;
   auto text = loader.Load(L"SimpleEzUI.ezui");
 
   auto domRoot = EzUIDocParser::Parse(text);
   while (!domRoot) {
-    //MessageBoxA(NULL, "Failed to load SimpleEzUI.ezui", "Error", MB_OK | MB_ICONERROR);
-    //return;
     std::wcout << L"打开ui文件失败，再次尝试\n";
-    EzUITextLoader loader;
-    auto text = loader.Load(L"SimpleEzUI.ezui");
 
+    auto text = loader.Load(L"SimpleEzUI.ezui");
     domRoot = EzUIDocParser::Parse(text);
   }
 
-#if 1
+  auto cssText = loader.Load(L"SimpleEzUI.css");
+  auto stylesheet = EzUICssParser::Parse(cssText);
+
+  EzUiStyleTreeBuilder styleTreeBuiler;
+  auto styleTree = styleTreeBuiler.Build(domRoot.get(), stylesheet.get());
+
   EzUITreeBuilder uiTreeBuilder;
   uiRoot = uiTreeBuilder.Build(domRoot.get());
 
-#else
+
+#if 0
   // 根节点
   uiRoot = new UIElement(L"Root");
   //YGNodeStyleSetFlexDirection(uiRoot->ygNode, YGFlexDirectionRow);
   //YGNodeStyleSetWidth(uiRoot->ygNode, 800);
- //YGNodeStyleSetHeight(uiRoot->ygNode, 600);
+  //YGNodeStyleSetHeight(uiRoot->ygNode, 600);
 
-  // 左边栏
+   // 左边栏
   auto sidebar = new UIElement(L"Sidebar");
   sidebar->color = Color(255, 255, 0, 0);
   YGNodeStyleSetWidth(sidebar->ygNode, 200);

@@ -1,8 +1,8 @@
 #pragma once
 
-class EzUIParser {
+class EzUIBaseParser {
 public:
-  EzUIParser(const std::wstring_view& src) : mSrc(src), mPos(0) {}
+  EzUIBaseParser(const std::wstring_view& src) : mSrc(src), mPos(0) {}
 
   /// Consume and discard zero or more whitespace characters.
   void ConsumeWhiteSpace();

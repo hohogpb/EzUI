@@ -9,7 +9,7 @@
 #include <io.h>
 #include <layout-engine/EzUICssParser.h>
 
-#if 1
+#if 0
 
 int main() {
   _setmode(_fileno(stdout), _O_U16TEXT);
@@ -26,7 +26,7 @@ int main() {
         std::wcout << *selector.tagName;
       if (selector.id)
         std::wcout << "#" << *selector.id;
-      for (const auto& cls : selector.classes) {
+      for (const auto& cls : selector.classNames) {
         std::wcout << "." << cls;
       }
       if (selector.pseudo)

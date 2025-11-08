@@ -27,6 +27,11 @@ UIElement* EzUITreeBuilder::Build(EzUIDocNode* domRoot) {
       continue;
     }
 
+    // style 子节点不在入栈
+    if (domParent->name == L"style") {
+      continue;
+    }
+
     // 如果包含文字，就不处理子节点了
     if (!domParent->text.empty()) {      
       continue;

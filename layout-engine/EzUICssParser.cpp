@@ -5,7 +5,7 @@
 static std::tuple<int, int, int> specificity(const SimpleSelector& sel) {
   return {
       sel.id ? 1 : 0,
-      static_cast<int>(sel.classes.size()),
+      static_cast<int>(sel.classNames.size()),
       sel.tagName ? 1 : 0
   };
 }
@@ -73,7 +73,7 @@ SimpleSelector EzUICssParser::ParseSimpleSelector() {
       selector.id = ParseIdentifier();
     } else if (c == '.') {
       ConsumeChar();
-      selector.classes.push_back(ParseIdentifier());
+      selector.classNames.push_back(ParseIdentifier());
     } else if (c == '*') {
       ConsumeChar(); // universal selector
     } else if (IsAlpha(c)) {
@@ -132,7 +132,7 @@ std::vector<std::wstring> EzUICssParser::ParsePropertys() {
 
 std::wstring EzUICssParser::ParseProperty() {
   auto result = ConsumeWhile([](auto c) {
-    return IsAlnum(c) || c == '-' || c == '_' || c == '(' || c == ')' || c == '#' || c == ',';
+    return IsAlnum(c) || c == '-' || c == '_' || c == '(' || c == ')' || c == '#' || c == ',' || c == '.';
   });
   return result;
 }

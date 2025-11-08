@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <layout-engine/EzUIDocNode.h>
 #include <layout-engine/EzUIElement.h>
+#include <layout-engine/EzUiStyleNode.h>
 
 
 using std::stack;
@@ -17,10 +18,21 @@ std::wstring DumpDocTree(const EzUIDocNode* node);
 
 void PrintUITree(const UIElement* node, int indent = 0);
 
-// ===== Dump 单个节点的 style 与 layout 简要信息 =====
-// 注意：Yoga API 提供了很多 style 获取函数，如果想把“所有 style”都读出来会很长。
-// 这里以常用的属性为例输出：width/height/min/max, margin/padding, flex, justify/align, position, display, overflow
+// ===== 样式树 Dump 函数（外部函数） =====
+
+/// 基础 dump：显示树形结构
+void DumpStyleTree(const EzUiStyleNode* styleNode, std::wostream& os = std::wcout);
+
+/// 详细 dump：显示所有属性
+void DumpStyleTreeDetailed(const EzUiStyleNode* styleNode, std::wostream& os = std::wcout);
+
+/// 统计 dump：显示树的统计信息
+void DumpStyleTreeStats(const EzUiStyleNode* styleNode, std::wostream& os = std::wcout);
+
+// ===== Dump 节点的 style 和 layout 重要信息 =====
+// 注意：Yoga API 提供了很多 style 获取函数，但许多查询效率不高，这里仅选择一些 style值较为常用和容易获得的字段
+// 为简洁起见，仅建议输出关键属性：如 width/height/min/max, margin/padding, flex, justify/align, position, display, overflow
 void DumpYogaNodeInfo(std::wostream& os, UIElement* node);
 
-// ===== 递归打印整棵 UI/Yoga 树（depth 控制缩进） =====
+// ===== 递归打印整个 UI/Yoga 树，按depth 加缩进，同时显示 =====
 void DumpYogaTree(UIElement* root, int depth = 0, std::wostream& os = std::wcout);

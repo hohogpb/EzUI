@@ -102,7 +102,7 @@
     <ClInclude Include="common\wchar_utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="layout-engine\EzUIParser.h">
+    <ClInclude Include="layout-engine\EzUIBaseParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="layout-engine\EzUICssParser.h">
@@ -115,6 +115,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="layout-engine\EzUICssNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUiStyleNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUiStyleTreeBuilder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\test_style_tree.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -200,7 +209,7 @@
     <ClCompile Include="common\wchar_utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="layout-engine\EzUIParser.cpp">
+    <ClCompile Include="layout-engine\EzUIBaseParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="tests\test_css_parser.cpp">
@@ -210,6 +219,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\EzUICssNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUiStyleNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUiStyleTreeBuilder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\test_style_tree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -230,5 +248,11 @@
     <None Include="main.ezui" />
     <None Include="SimpleEzUI.ezui" />
     <None Include="SimpleEzUI.css" />
+    <None Include="STYLETREE_DUMP_GUIDE.md" />
+    <None Include="STYLETREE_DUMP_QUICK_REFERENCE.md" />
+    <None Include="STYLETREE_DUMP_IMPLEMENTATION_SUMMARY.md" />
+    <None Include="STYLETREE_DUMP_FINAL_SUMMARY.md" />
+    <None Include="STYLETREE_DUMP_INDEX.md" />
+    <None Include="STYLETREE_DUMP_REFACTOR_TO_EXTERNAL_FUNCTIONS.md" />
   </ItemGroup>
 </Project>

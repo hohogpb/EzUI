@@ -1,14 +1,14 @@
 #include "pch.h"
-#include "EzUIParser.h"
+#include "EzUIBaseParser.h"
 #include <iostream>
 #include <fstream>
 #include <common/wchar_utils.h>
 
-void EzUIParser::ConsumeWhiteSpace() {
+void EzUIBaseParser::ConsumeWhiteSpace() {
   ConsumeWhile(IsSpace);
 }
 
-std::wstring EzUIParser::ConsumeWhile(const std::function<bool(wchar_t)>& test) {
+std::wstring EzUIBaseParser::ConsumeWhile(const std::function<bool(wchar_t)>& test) {
   std::wstring result;
   while (!Eof() && test(NextChar())) {
     result += ConsumeChar();
@@ -16,21 +16,21 @@ std::wstring EzUIParser::ConsumeWhile(const std::function<bool(wchar_t)>& test) 
   return result;
 }
 
-wchar_t EzUIParser::ConsumeChar() {
+wchar_t EzUIBaseParser::ConsumeChar() {
   auto c = NextChar();
   mPos++;
   return c;
 }
 
-wchar_t EzUIParser::NextChar() {
+wchar_t EzUIBaseParser::NextChar() {
   return mPos < mSrc.size() ? mSrc[mPos] : '\0';
 }
 
-bool EzUIParser::StartsWith(const std::wstring_view& s) {
+bool EzUIBaseParser::StartsWith(const std::wstring_view& s) {
   return mSrc.substr(mPos).starts_with(s);
 }
 
-void EzUIParser::Expect(const std::wstring_view& s) {
+void EzUIBaseParser::Expect(const std::wstring_view& s) {
   if (StartsWith(s)) {
     mPos += s.length();
   } else {
@@ -38,11 +38,11 @@ void EzUIParser::Expect(const std::wstring_view& s) {
   }
 }
 
-void EzUIParser::ExpectChar(wchar_t c) {
+void EzUIBaseParser::ExpectChar(wchar_t c) {
   if (ConsumeChar() != c)
     throw std::runtime_error(std::format("Expected char at byte{} but it was not found", mPos));
 }
 
-bool EzUIParser::Eof() {
+bool EzUIBaseParser::Eof() {
   return mPos >= mSrc.length();
 }

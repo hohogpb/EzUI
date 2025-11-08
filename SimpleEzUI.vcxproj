@@ -191,12 +191,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="layout-engine\EzUiStyleTreeBuilder.h" />
+    <ClInclude Include="layout-engine\EzUiStyleNode.h" />
     <ClInclude Include="layout-engine\EzUICssNode.h" />
     <ClInclude Include="layout-engine\EzUICssParser.h" />
-    <ClInclude Include="layout-engine\EzUIParser.h" />
+    <ClInclude Include="layout-engine\EzUIBaseParser.h" />
     <ClInclude Include="layout-engine\EzUITextLoader.h" />
     <ClInclude Include="tests\test_css_parser.h" />
     <ClInclude Include="tests\test_doc_parser.h" />
+    <ClInclude Include="tests\test_style_tree.h" />
     <ClInclude Include="utils\ComScope.h" />
     <ClInclude Include="core\EzUIAppWindow.h" />
     <ClInclude Include="core\EzUIWindow.h" />
@@ -227,12 +230,15 @@
     <ClInclude Include="common\wchar_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="layout-engine\EzUiStyleTreeBuilder.cpp" />
+    <ClCompile Include="layout-engine\EzUiStyleNode.cpp" />
     <ClCompile Include="layout-engine\EzUICssNode.cpp" />
-    <ClCompile Include="layout-engine\EzUIParser.cpp" />
+    <ClCompile Include="layout-engine\EzUIBaseParser.cpp" />
     <ClCompile Include="layout-engine\EzUITextLoader.cpp" />
     <ClCompile Include="layout-engine\EzUICssParser.cpp" />
     <ClCompile Include="tests\test_css_parser.cpp" />
     <ClCompile Include="tests\test_doc_parser.cpp" />
+    <ClCompile Include="tests\test_style_tree.cpp" />
     <ClCompile Include="utils\ComScope.cpp" />
     <ClCompile Include="core\EzUIAppWindow.cpp" />
     <ClCompile Include="core\EzUIWindow.cpp" />
@@ -277,6 +283,12 @@
     <None Include="main.ezui" />
     <None Include="SimpleEzUI.css" />
     <None Include="SimpleEzUI.ezui" />
+    <None Include="STYLETREE_DUMP_FINAL_SUMMARY.md" />
+    <None Include="STYLETREE_DUMP_GUIDE.md" />
+    <None Include="STYLETREE_DUMP_IMPLEMENTATION_SUMMARY.md" />
+    <None Include="STYLETREE_DUMP_INDEX.md" />
+    <None Include="STYLETREE_DUMP_QUICK_REFERENCE.md" />
+    <None Include="STYLETREE_DUMP_REFACTOR_TO_EXTERNAL_FUNCTIONS.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
