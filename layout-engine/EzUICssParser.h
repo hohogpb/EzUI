@@ -25,10 +25,9 @@ protected:
 
   std::wstring ParseIdentifier();
 
-  Value ParseValue();
+  std::vector<std::wstring> ParsePropertys();
+  std::wstring ParseProperty();
 
-  float ParseFloat();
-  Unit ParseUnit();
-  Color ParseColor();
-  uint8_t ParseHexPair();
+
+
 };

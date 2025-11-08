@@ -29,17 +29,16 @@ int main() {
       for (const auto& cls : selector.classes) {
         std::wcout << "." << cls;
       }
+      if (selector.pseudo)
+        std::wcout << ":" << * selector.pseudo;
       std::wcout << " ";
     }
 
     for (const auto& decl : rule.declarations) {
       std::wcout << decl.name << " -> ";
-      if (auto kw = std::get_if<std::wstring>(&decl.value))
-        std::wcout << *kw;
-      else if (auto len = std::get_if<std::pair<float, Unit>>(&decl.value))
-        std::wcout << len->first << "px";
-      else if (auto color = std::get_if<Color>(&decl.value))
-        std::wcout << "rgba(" << int(color->r) << "," << int(color->g) << "," << int(color->b) << ")";
+      for (const auto& prop : decl.value) {
+        std::wcout << prop << " ";
+      }
       std::wcout << std::endl;
     }
   }

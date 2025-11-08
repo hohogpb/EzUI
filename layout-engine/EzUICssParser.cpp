@@ -46,10 +46,12 @@ std::vector<Selector> EzUICssParser::ParseSelectors() {
     auto aSelector = ParseSimpleSelector();
     selectors.push_back(aSelector);
     ConsumeWhiteSpace();
-    if (NextChar() == ',') {
+
+    auto c = NextChar();
+    if (c == ',') {
       ConsumeChar();
       ConsumeWhiteSpace();
-    } else if (NextChar() == '{') {
+    } else if (c == '{') {
       break;
     } else {
       throw std::runtime_error("Unexpected character in selector list");
@@ -74,8 +76,12 @@ SimpleSelector EzUICssParser::ParseSimpleSelector() {
       selector.classes.push_back(ParseIdentifier());
     } else if (c == '*') {
       ConsumeChar(); // universal selector
-    } else if (isalpha(c)) {
+    } else if (IsAlpha(c)) {
       selector.tagName = ParseIdentifier();
+    } else if (c == ':') {
+      // Pseudo-class or pseudo-element; skip for now.
+      ConsumeChar();
+      selector.pseudo = ParseIdentifier();
     } else {
       break;
     }
@@ -101,10 +107,7 @@ Declaration EzUICssParser::ParseDeclaration() {
   auto name = ParseIdentifier();
   ConsumeWhiteSpace();
   ExpectChar(':');
-  ConsumeWhiteSpace();
-  Value value = ParseValue();
-  ConsumeWhiteSpace();
-  ExpectChar(';');
+  auto value = ParsePropertys();
   return { name, value };
 }
 
@@ -113,39 +116,24 @@ std::wstring EzUICssParser::ParseIdentifier() {
   return result;
 }
 
-Value EzUICssParser::ParseValue() {
-  auto c = NextChar();
-  if (isdigit(c)) {
-    return std::make_pair(ParseFloat(), ParseUnit());
-  } else if (c == '#') {
-    return ParseColor();
-  } else {
-    return ParseIdentifier();
+std::vector<std::wstring> EzUICssParser::ParsePropertys() {
+  std::vector<std::wstring> properties;
+  while (true) {
+    ConsumeWhiteSpace();
+    auto c = NextChar();
+    if (c == ';' || c == '}') {
+      ConsumeChar();
+      break;
+    }
+    properties.push_back(ParseProperty());
   }
+  return properties;
 }
 
-float EzUICssParser::ParseFloat() {
-  auto s = ConsumeWhile([](wchar_t c) {
-    return IsDigit(c) || c == '.';
+std::wstring EzUICssParser::ParseProperty() {
+  auto result = ConsumeWhile([](auto c) {
+    return IsAlnum(c) || c == '-' || c == '_' || c == '(' || c == ')' || c == '#' || c == ',';
   });
-  return std::stof(s);
+  return result;
 }
 
-Unit EzUICssParser::ParseUnit() {
-  auto s = ParseIdentifier();
-  std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-  if (s == L"px")
-    return Unit::Px;
-  throw std::runtime_error(std::format("unrecognized unit"));
-}
-
-Color EzUICssParser::ParseColor() {
-  ExpectChar('#');
-  return { ParseHexPair(), ParseHexPair(), ParseHexPair(), 255 };
-}
-
-uint8_t EzUICssParser::ParseHexPair() {
-  std::wstring_view hex = mSrc.substr(mPos, 2);
-  mPos += 2;
-  return static_cast<uint8_t>(std::stoi(hex.data(), nullptr, 16));
-}
