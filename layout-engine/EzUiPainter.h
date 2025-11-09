@@ -8,7 +8,9 @@ enum class EzUiDisplayCommandType {
 
 struct EzUiDisplayCommand {
   enum class Type {
-    SolidColor
+    SolidColor,
+    PushOpacity,
+    PopOpacity
   };
 
   Type type;

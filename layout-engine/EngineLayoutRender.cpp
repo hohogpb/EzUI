@@ -197,8 +197,8 @@ void DrawSvg(ID2D1HwndRenderTarget* rt, EzUI::RectF ygRect, const std::wstring& 
   dc->SetTransform(oldTransform);
 }
 
-void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayoutNode) {
 
+static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayoutNode) {
   EzUI::Rect ygRect = GetAbsoluteRect(aLayoutNode->ygNode);
 
   auto myRect = aLayoutNode->rect;
@@ -234,21 +234,6 @@ void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayo
     g.DrawImage(backgroundImage, rect.left, rect.top, rect.width, rect.height);
   }
 #endif
-  float finalOpacity = opacity;
-
-  if (finalOpacity < 1.f) {
-    D2D1_LAYER_PARAMETERS params = D2D1::LayerParameters(
-      D2D1::InfiniteRect(), // 覆盖范围（可用 SVG 边界替代）
-      nullptr, // 无几何遮罩
-      D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
-      D2D1::IdentityMatrix(),  // 无变换
-      finalOpacity, // 👈 这里设置透明度 0.0 ~ 1.0
-      nullptr,
-      D2D1_LAYER_OPTIONS_NONE
-    );
-
-    rt->PushLayer(params, nullptr);
-  }
 
   // svg要获取上层节点的opacity
   if (tag == L"svg") {
@@ -270,20 +255,66 @@ void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayo
     }
   }
 
-  if (finalOpacity < 1.f) {
-    rt->PopLayer();
+}
+
+static void EngineLayout_DrawLayoutWithOpacity(ID2D1HwndRenderTarget* dc, EzUiLayoutBox* aLayoutNode) {
+  auto opacity = aLayoutNode->GetOpacity();
+  auto bounds = aLayoutNode->rect;
+
+  if (opacity < 1.0f) {
+    // 推荐把 contentBounds 设置为 node 的边界，而不是 InfiniteRect，
+    // 以减少 layer 的工作量和内存开销。
+#if 0
+    D2D1_LAYER_PARAMETERS params = D2D1::LayerParameters(
+      D2D1::InfiniteRect(), // 覆盖范围（可用 SVG 边界替代）
+      nullptr, // 无几何遮罩
+      D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
+      D2D1::IdentityMatrix(),  // 无变换
+      finalOpacity, // 👈 这里设置透明度 0.0 ~ 1.0
+      nullptr,
+      D2D1_LAYER_OPTIONS_NONE
+    );
+#endif
+
+    D2D1_LAYER_PARAMETERS layerParams = D2D1::LayerParameters();
+    layerParams.contentBounds = D2D1::RectF(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
+    layerParams.opacity = opacity;
+
+    // 先 push layer（使 layer 包含 背景 + 子元素 + 前景）
+    dc->PushLayer(layerParams, nullptr);
+
+    // 先绘制背景（在子元素之下）
+    EngineLayout_DrawLayoutNode(dc, aLayoutNode);
+
+    // 绘制子节点
+    for (auto& child : aLayoutNode->children)
+      EngineLayout_DrawLayoutWithOpacity(dc, child);
+
+    // 整个 layer 在 Pop 时会按 opacity 合成回去
+    dc->PopLayer();
+  } else {
+    // 不需要 group opacity，则按常规顺序绘制
+    EngineLayout_DrawLayoutNode(dc, aLayoutNode);
+
+    for (auto& child : aLayoutNode->children)
+      EngineLayout_DrawLayoutWithOpacity(dc, child);
+
   }
 }
 
 
+
 void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
   auto displayList = EzUiPainter::BuildDisplayList(gLayoutRoot);
-  
+
   // drawlist 怎么考虑opacity 这种
 
   gRenderTarget->BeginDraw();
   gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
+  EngineLayout_DrawLayoutWithOpacity(gRenderTarget.Get(), gLayoutRoot);
+
+#if 0
   stack<EzUiLayoutBox*> aStack;
   aStack.push(gLayoutRoot);
 
@@ -299,6 +330,7 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
       aStack.push(*it);
     }
   }
+#endif
 
   HRESULT hr = gRenderTarget->EndDraw();
   if (hr == D2DERR_RECREATE_TARGET)
