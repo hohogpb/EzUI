@@ -5,9 +5,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-extern ComPtr<IDWriteFactory> gDWriteFactory;
-
-YGSize MeasureTextNode(YGNodeConstRef ygNode,
+static YGSize MeasureTextNode(YGNodeConstRef ygNode,
   float width, YGMeasureMode widthMode,
   float height, YGMeasureMode heightMode) {
 
@@ -50,9 +48,11 @@ UIElement* EzUIElementBuilder::Build(EzUIDocNode* docNode) {
 
   EzUIPropertyResolvers resolvers;
 
+#if 0
   for (auto& [keyRaw, valueRaw] : docNode->attributes) {
     resolvers.Resolve(keyRaw, valueRaw, uiNode, ygNode);
   }
+#endif
 
   
 

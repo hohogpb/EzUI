@@ -13,14 +13,15 @@
 #include <fcntl.h>
 #include <locale>
 #include <utils/WinConsole.h>
-#include <utils/DumpInfo.h>
 #include <utils/GdiPlusScope.h>
 #include <utils/ComScope.h>
+#include "layout-engine/EzUiLayoutBox.h"
 
 EzUIAppWindow* appWindow = nullptr;
 EzUIWindow* mainWindow = nullptr;
 
-extern UIElement* uiRoot;
+// extern UIElement* uiRoot;
+extern EzUiLayoutBox* gLayoutRoot;
 
 static void CreateWindows(HINSTANCE hInstance) {
   appWindow = new EzUIAppWindow(hInstance);
@@ -43,8 +44,8 @@ static void CreateWindows(HINSTANCE hInstance) {
     mainWindow->Created += [](auto wnd) {
       EngineLayout_InitUILayout(wnd);
 
-      auto width = YGNodeStyleGetWidth(uiRoot->ygNode);
-      auto height = YGNodeStyleGetHeight(uiRoot->ygNode);
+      auto width = YGNodeStyleGetWidth(gLayoutRoot->ygNode);
+      auto height = YGNodeStyleGetHeight(gLayoutRoot->ygNode);
 
       if (width.unit != YGUnitAuto && height.unit != YGUnitAuto) {
 #if 1
@@ -104,12 +105,12 @@ static void HotReloadInit() {
     auto rc = mainWindow->GetClientRect();
     EngineLayout_Resize(mainWindow, rc.right - rc.left, rc.bottom - rc.top);
 
-    DumpYogaTree(uiRoot);
+   // DumpYogaTree(uiRoot);
   });
 }
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-  ComScope com; 
+  ComScope com;
   GdiPlusScope gdip;
   WinConsole console;
 

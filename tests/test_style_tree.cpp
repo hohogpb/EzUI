@@ -1,14 +1,15 @@
 #include "pch.h"
 #include "test_style_tree.h"
 #include "layout-engine/EzUIDocParser.h"
-#include "layout-engine/EzUIElement.h"
-#include "layout-engine/EzUITreeBuilder.h"
-#include "layout-engine/EzUITextLoader.h"
-#include <utils/DumpInfo.h>
+// #include "layout-engine/EzUIElement.h"
+//#include "layout-engine/EzUITreeBuilder.h"
+#include "layout-engine/EzUITextLoader.h" 
 #include <fcntl.h>
 #include <io.h>
 #include <layout-engine/EzUICssParser.h>
 #include <layout-engine/EzUiStyleTreeBuilder.h>
+#include <layout-engine/EzUiLayoutBuilder.h>
+#include <layout-engine/EzUiStyledNode.h>
 
 
 int main() {
@@ -20,7 +21,7 @@ int main() {
   auto domRoot = EzUIDocParser::Parse(docText);
 
   std::wcout << L"======== DOM 树 ========" << std::endl;
-  PrintXmlTree(domRoot.get());
+  PrintXmlTree(domRoot.get(), 0);
   std::wcout << std::endl;
 
   // 加载 CSS 样式表
@@ -48,6 +49,9 @@ int main() {
   // 3. 统计信息
   std::wcout << std::endl;
   DumpStyleTreeStats(styleTree.get());
+
+  // 构建布局树   
+  auto layoutTree = EzUiLayoutBuilder::BuildTree(styleTree.get());
 
   return 0;
 }

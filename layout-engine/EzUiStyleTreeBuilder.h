@@ -2,13 +2,15 @@
 
 #include "EzUIDocNode.h"
 #include "EzUICssNode.h"
-#include "EzUiStyleNode.h"
+#include "EzUiStyledNode.h"
 
 
 
 class EzUiStyleTreeBuilder {
 public:
-  std::unique_ptr<EzUiStyleNode> Build(EzUIDocNode* docNode, Stylesheet* stylesheet);
+  static std::unique_ptr<EzUiStyledNode> BuildTree(EzUIDocNode* docNode, Stylesheet* stylesheet);
+
+  std::unique_ptr<EzUiStyledNode> Build(EzUIDocNode* docNode, Stylesheet* stylesheet);
 
   PropertyMap SpecifiedValues(EzUIDocNode* elem, Stylesheet* stylesheet);
 

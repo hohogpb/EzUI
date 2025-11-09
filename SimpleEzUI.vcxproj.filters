@@ -54,16 +54,7 @@
     <ClInclude Include="layout-engine\EzUIDocParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="layout-engine\EzUIElement.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="layout-engine\EzUITreeBuilder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="layout-engine\EzUIDocNode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="layout-engine\EzUIElementBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="common\file_watch.h">
@@ -73,9 +64,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="utils\WinConsole.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\DumpInfo.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="layout-engine\property-resolvers\FlexResolvers.h">
@@ -117,13 +105,22 @@
     <ClInclude Include="layout-engine\EzUICssNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="layout-engine\EzUiStyleNode.h">
+    <ClInclude Include="layout-engine\EzUiStyledNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="layout-engine\EzUiStyleTreeBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="tests\test_style_tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUiLayoutBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUiPainter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="layout-engine\EzUiLayoutBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -158,16 +155,7 @@
     <ClCompile Include="layout-engine\EzUIDocParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="layout-engine\EzUIElement.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="layout-engine\EzUITreeBuilder.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="layout-engine\EzUIDocNode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="layout-engine\EzUIElementBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="common\file_watch.cpp">
@@ -177,9 +165,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="utils\WinConsole.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\DumpInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\property-resolvers\FlexResolvers.cpp">
@@ -221,13 +206,22 @@
     <ClCompile Include="layout-engine\EzUICssNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="layout-engine\EzUiStyleNode.cpp">
+    <ClCompile Include="layout-engine\EzUiStyledNode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\EzUiStyleTreeBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="tests\test_style_tree.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUiLayoutBox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUiPainter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUiLayoutBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

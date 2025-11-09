@@ -12,6 +12,7 @@ public:
   EzUICssParser(const std::wstring_view& src) :EzUIBaseParser(src) {}
 
   static std::unique_ptr<Stylesheet> Parse(const std::wstring& src);
+  static std::unique_ptr<Stylesheet> ParseFile(const std::filesystem::path& filepath);
 
 protected:
   std::vector<Rule> ParseRules();

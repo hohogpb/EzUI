@@ -2,9 +2,14 @@
 #include "EzUiStyleTreeBuilder.h"
 
 
-std::unique_ptr<EzUiStyleNode> EzUiStyleTreeBuilder::Build(
-  EzUIDocNode* docNode, Stylesheet* stylesheet) {
-  auto styled = std::make_unique<EzUiStyleNode>();
+std::unique_ptr<EzUiStyledNode> EzUiStyleTreeBuilder::BuildTree(EzUIDocNode* docNode, Stylesheet* stylesheet) {
+  EzUiStyleTreeBuilder builder;
+  return builder.Build(docNode, stylesheet);
+}
+
+std::unique_ptr<EzUiStyledNode> EzUiStyleTreeBuilder::Build(EzUIDocNode* docNode, Stylesheet* stylesheet) {
+
+  auto styled = std::make_unique<EzUiStyledNode>();
   styled->node = docNode;
 
   //if (docNode->type == NodeType::Element && root.element) {

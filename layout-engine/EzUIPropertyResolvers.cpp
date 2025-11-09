@@ -252,7 +252,7 @@ static unordered_map<wstring, YGEdge> borderEdgeDict = {
 
 // 1. 定义属性解析器接口
 // value uiNode
-using PropertyResolver = function<void(const wstring&, const wstring&, UIElement*, YGNodeRef)>;
+using PropertyResolver = function<void(const wstring&, const wstring&, EzUiStyledNode*, YGNodeRef)>;
 
 // ---- 辅助: 设置可为百分比或绝对值的属性 ----
 template<typename Setter, typename SetterPercent>
@@ -262,102 +262,102 @@ void SetMaybePercent(YGNodeRef node, const wstring& val, Setter setFunc, SetterP
   else setFunc(node, num);
 }
 
-static void colorResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void colorResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   EzUI::Color c = ParseColor(val);
   uiNode->color = c;
 }
 
-static void nameResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void nameResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   uiNode->name = val;
 }
 
-static void flexDirectionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void flexDirectionResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   auto lowercaseVal = ToLower(val);
   YGNodeStyleSetFlexDirection(ygNode, flexDirMap[lowercaseVal]);
 }
 
-static void widthResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void widthResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetWidth(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetWidthPercent(n, v); });
 }
 
-static void heightResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void heightResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetHeight(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetHeightPercent(n, v); });
 }
 
-static void minWidthResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void minWidthResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetMinWidth(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetMinWidthPercent(n, v); });
 }
 
-static void minHeightResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void minHeightResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetMinHeight(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetMinHeightPercent(n, v); });
 }
 
-static void maxWidthResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void maxWidthResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetMaxWidth(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetMaxWidthPercent(n, v); });
 }
 
-static void maxHeightResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void maxHeightResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetMaxHeight(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetMaxHeightPercent(n, v); });
 }
 
-static void posResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void posResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   auto edge = ygEdgeDict[key];
   SetMaybePercent(ygNode, val,
     [edge](YGNodeRef n, float v) { YGNodeStyleSetPosition(n, edge, v); },
     [edge](YGNodeRef n, float v) { YGNodeStyleSetPositionPercent(n, edge, v); });
 }
 
-static void positionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void positionResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetPositionType(ygNode, positionTypeMap[val]);
 }
 
-static void paddingResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void paddingResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetPadding(n, YGEdgeAll, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetPaddingPercent(n, YGEdgeAll, v); });
 
 }
 
-static void marginResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void marginResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetMargin(n, YGEdgeAll, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetMarginPercent(n, YGEdgeAll, v); });
 }
 
-static void justifyContentResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void justifyContentResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetJustifyContent(ygNode, justifyMap[val]);
 }
 
-static void alignItemsResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void alignItemsResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetAlignItems(ygNode, alignMap[val]);
 }
 
-static void alignSelfResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void alignSelfResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetAlignSelf(ygNode, alignMap[val]);
 }
 
-static void alignContentResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void alignContentResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetAlignContent(ygNode, alignMap[val]);
 }
 
-static void backgroundColorResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void backgroundColorResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   EzUI::Color c = ParseColor(val);
   uiNode->bgColor = c;
 }
 
-static void backgroundImageResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void backgroundImageResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   auto lowerVal = ToLower(val);
   if (lowerVal.rfind(L"url(", 0) == 0) { // Starts with url(
     size_t start = val.find(L'(') + 1;
@@ -381,7 +381,7 @@ static void backgroundImageResolver(const wstring& key, const wstring& val, UIEl
   }
 }
 
-static void backgroundResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void backgroundResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   // Shorthand: try to parse as image first, then as color.
   auto lowerVal = ToLower(val);
   if (lowerVal.rfind(L"url(", 0) == 0 || lowerVal == L"none") {
@@ -391,7 +391,7 @@ static void backgroundResolver(const wstring& key, const wstring& val, UIElement
   }
 }
 
-static void flexResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void flexResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   std::wstring trimmedVal = Trim(ToLower(val));
 
   if (trimmedVal == L"none") {
@@ -486,7 +486,7 @@ static void flexResolver(const wstring& key, const wstring& val, UIElement* uiNo
 }
 
 
-static void flexWrapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void flexWrapResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   if (val == L"nowrap")
     YGNodeStyleSetFlexWrap(ygNode, YGWrapNoWrap);
   else if (val == L"wrap")
@@ -495,87 +495,87 @@ static void flexWrapResolver(const wstring& key, const wstring& val, UIElement* 
     YGNodeStyleSetFlexWrap(ygNode, YGWrapWrapReverse);
 }
 
-static void flexGrowResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void flexGrowResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetFlexGrow(ygNode, ParseFloat(val));
 }
 
-static void flexShrinkResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void flexShrinkResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetFlexShrink(ygNode, ParseFloat(val));
 }
 
-static void flexBasisResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void flexBasisResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   SetMaybePercent(ygNode, val,
     [](YGNodeRef n, float v) { YGNodeStyleSetFlexBasis(n, v); },
     [](YGNodeRef n, float v) { YGNodeStyleSetFlexBasisPercent(n, v); });
 }
 
-static void marginPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void marginPartResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   auto edge = marginEdgeDict[key];
   SetMaybePercent(ygNode, val,
     [edge](YGNodeRef n, float v) { YGNodeStyleSetMargin(n, edge, v); },
     [edge](YGNodeRef n, float v) { YGNodeStyleSetMarginPercent(n, edge, v); });
 }
 
-static void paddingPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void paddingPartResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   auto edge = paddingEdgeDict[key];
   SetMaybePercent(ygNode, val,
     [edge](YGNodeRef n, float v) { YGNodeStyleSetPadding(n, edge, v); },
     [edge](YGNodeRef n, float v) { YGNodeStyleSetPaddingPercent(n, edge, v); });
 }
 
-static void borderResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void borderResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetBorder(ygNode, YGEdgeAll, ParseFloat(val));
 }
 
-static void borderPartResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void borderPartResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   auto edge = borderEdgeDict[key];
   YGNodeStyleSetBorder(ygNode, edge, ParseFloat(val));
 }
 
-static void overflowResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void overflowResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   if (overflowMap.contains(val))
     YGNodeStyleSetOverflow(ygNode, overflowMap[val]);
 }
 
-static void displayResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void displayResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   if (displayMap.contains(val))
     YGNodeStyleSetDisplay(ygNode, displayMap[val]);
 }
 
-static void aspectRatioResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void aspectRatioResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetAspectRatio(ygNode, ParseFloat(val));
 }
 
-static void gapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void gapResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetGap(ygNode, YGGutterAll, ParseFloat(val));
 }
 
-static void rowGapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void rowGapResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetGap(ygNode, YGGutterRow, ParseFloat(val));
 }
 
-static void columnGapResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void columnGapResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   YGNodeStyleSetGap(ygNode, YGGutterColumn, ParseFloat(val));
 }
 
-static void versionResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void versionResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
 
 }
 
-static void viewBoxResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void viewBoxResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
 
 }
 
-static void classResolver(const wstring& key, const wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void classResolver(const wstring& key, const wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
 
 }
 
-static void opacityResolver(const std::wstring& key, const std::wstring& val, UIElement* uiNode, YGNodeRef ygNode) {
+static void opacityResolver(const std::wstring& key, const std::wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   float opacity = ParseFloat(val);
   // Clamp opacity to [0, 1]
   if (opacity < 0.0f) opacity = 0.0f;
-  if (opacity > 1.0f) opacity = 1.0f;  
-  uiNode->opacity =  opacity;
+  if (opacity > 1.0f) opacity = 1.0f;
+  uiNode->opacity = opacity;
 }
 
 // 3. 声明并初始化 propertyResolverDict
@@ -644,7 +644,7 @@ static void ensurePropertyResolved(const wstring& key) {
   }
 }
 
-void EzUIPropertyResolvers::Resolve(const std::wstring& keyRaw, const std::wstring& valRaw, UIElement* uiNode, YGNodeRef ygNode) {
+void EzUIPropertyResolvers::Resolve(const std::wstring& keyRaw, const std::wstring& valRaw, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
   std::wstring key = ToLower(keyRaw);
 
   ensurePropertyResolved(key);

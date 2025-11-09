@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "EzUICssParser.h"
 #include "common/wchar_utils.h"
+#include "EzUITextLoader.h"
 
 static std::tuple<int, int, int> specificity(const SimpleSelector& sel) {
   return {
@@ -21,6 +22,12 @@ std::unique_ptr<Stylesheet> EzUICssParser::Parse(const std::wstring& src) {
   sheet->rules = parser.ParseRules();
 
   return sheet;
+}
+
+std::unique_ptr<Stylesheet> EzUICssParser::ParseFile(const std::filesystem::path& filepath) {
+  EzUITextLoader loader;
+  auto text = loader.Load(filepath.wstring());
+  return Parse(text);
 }
 
 std::vector<Rule> EzUICssParser::ParseRules() {

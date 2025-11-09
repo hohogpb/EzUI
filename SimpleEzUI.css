@@ -11,6 +11,6 @@ button {
   opacity: 0.9;
 }
 
-  .fullscreen-button:hover {
-    opacity: 1;
-  }
+.fullscreen-button:hover {
+  opacity: 1;
+}

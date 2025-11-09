@@ -20,6 +20,12 @@ std::unique_ptr<EzUIDocNode> EzUIDocParser::Parse(const std::wstring& src) {
   return root;
 }
 
+std::unique_ptr<EzUIDocNode> EzUIDocParser::ParseFile(const std::filesystem::path& filepath) {
+  EzUITextLoader loader;
+  auto text = loader.Load(filepath.wstring());
+  return Parse(text);
+}
+
 /// Parse a sequence of sibling nodes.
 std::vector<std::unique_ptr<EzUIDocNode>> EzUIDocParser::ParseNodes() {
   std::vector<std::unique_ptr<EzUIDocNode>> nodes;

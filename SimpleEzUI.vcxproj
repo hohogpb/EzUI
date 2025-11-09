@@ -191,8 +191,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="layout-engine\EzUiLayoutBuilder.h" />
+    <ClInclude Include="layout-engine\EzUiPainter.h" />
+    <ClInclude Include="layout-engine\EzUiLayoutBox.h" />
     <ClInclude Include="layout-engine\EzUiStyleTreeBuilder.h" />
-    <ClInclude Include="layout-engine\EzUiStyleNode.h" />
+    <ClInclude Include="layout-engine\EzUiStyledNode.h" />
     <ClInclude Include="layout-engine\EzUICssNode.h" />
     <ClInclude Include="layout-engine\EzUICssParser.h" />
     <ClInclude Include="layout-engine\EzUIBaseParser.h" />
@@ -210,11 +213,7 @@
     <ClInclude Include="layout-engine\EzUITextFormatCaches.h" />
     <ClInclude Include="layout-engine\EzUISvgElement.h" />
     <ClInclude Include="layout-engine\property-resolvers\FlexResolvers.h" />
-    <ClInclude Include="utils\DumpInfo.h" />
-    <ClInclude Include="layout-engine\EzUIElementBuilder.h" />
     <ClInclude Include="layout-engine\EzUIDocNode.h" />
-    <ClInclude Include="layout-engine\EzUITreeBuilder.h" />
-    <ClInclude Include="layout-engine\EzUIElement.h" />
     <ClInclude Include="layout-engine\EzUIDocParser.h" />
     <ClInclude Include="layout-engine\EngineLayoutRender.h" />
     <ClInclude Include="layout-engine\EngineEditBoxRender.h" />
@@ -230,8 +229,11 @@
     <ClInclude Include="common\wchar_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="layout-engine\EzUiLayoutBuilder.cpp" />
+    <ClCompile Include="layout-engine\EzUiPainter.cpp" />
+    <ClCompile Include="layout-engine\EzUiLayoutBox.cpp" />
     <ClCompile Include="layout-engine\EzUiStyleTreeBuilder.cpp" />
-    <ClCompile Include="layout-engine\EzUiStyleNode.cpp" />
+    <ClCompile Include="layout-engine\EzUiStyledNode.cpp" />
     <ClCompile Include="layout-engine\EzUICssNode.cpp" />
     <ClCompile Include="layout-engine\EzUIBaseParser.cpp" />
     <ClCompile Include="layout-engine\EzUITextLoader.cpp" />
@@ -249,11 +251,7 @@
     <ClCompile Include="layout-engine\EzUITextFormatCaches.cpp" />
     <ClCompile Include="layout-engine\EzUISvgElement.cpp" />
     <ClCompile Include="layout-engine\property-resolvers\FlexResolvers.cpp" />
-    <ClCompile Include="utils\DumpInfo.cpp" />
-    <ClCompile Include="layout-engine\EzUIElementBuilder.cpp" />
     <ClCompile Include="layout-engine\EzUIDocNode.cpp" />
-    <ClCompile Include="layout-engine\EzUITreeBuilder.cpp" />
-    <ClCompile Include="layout-engine\EzUIElement.cpp" />
     <ClCompile Include="layout-engine\EzUIDocParser.cpp" />
     <ClCompile Include="layout-engine\EngineLayoutRender.cpp" />
     <ClCompile Include="layout-engine\EngineEditBoxRender.cpp" />

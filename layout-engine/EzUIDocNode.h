@@ -38,3 +38,6 @@ struct EzUIDocNode {
     return std::find(classNames.begin(), classNames.end(), className) != classNames.end();
   }
 };
+
+void PrintXmlTree(const EzUIDocNode* node, int indent = 0);
+std::wstring DumpDocTree(const EzUIDocNode* node);

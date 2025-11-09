@@ -10,6 +10,7 @@
 class EzUIDocParser : public EzUIBaseParser {
 public:
   static std::unique_ptr<EzUIDocNode> Parse(const std::wstring& src);
+  static std::unique_ptr<EzUIDocNode> ParseFile(const std::filesystem::path& filepath);
 
   EzUIDocParser(const std::wstring_view& src) :EzUIBaseParser(src) {}
 

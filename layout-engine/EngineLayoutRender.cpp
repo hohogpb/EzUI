@@ -1,15 +1,16 @@
-// ºÃµÄ²Î¿¼½Ì³Ì£º
+ï»¿// å¥½çš„å‚è€ƒæ•™ç¨‹ï¼š
 // https://devyang.space/2020/09/13/yoga%E5%B8%83%E5%B1%80%E8%A7%A3%E6%9E%90/
 
 #include "pch.h"
 #include "EngineLayoutRender.h"
 #include "yoga/Yoga.h"
 #include "EzUIDocParser.h"
-#include "EzUIElement.h"
-#include "EzUITreeBuilder.h"
+//#include "EzUIElement.h"
+// #include "EzUITreeBuilder.h"
 #include "EzUITextLoader.h"
 #include "EzUICssParser.h"
 #include "EzUiStyleTreeBuilder.h"
+#include "EzUiLayoutBuilder.h"
 
 using std::stack;
 using std::pair;
@@ -23,11 +24,20 @@ ComPtr<ID2D1HwndRenderTarget> gRenderTarget;
 ComPtr<IDWriteFactory> gDWriteFactory;
 
 //----------------------------------------------
-// È«¾Ö UI Ê÷
+// å…¨å±€ UI æ ‘
 //----------------------------------------------
+
+#if 0
 UIElement* uiRoot = nullptr;
 UIElement* lastHittedUiNode = nullptr;
 UIElement* lastFocusedUiNode = nullptr;
+#endif
+
+std::unique_ptr<EzUiStyledNode> gStyleTree;
+
+EzUiLayoutBox* gLayoutRoot = nullptr;
+EzUiLayoutBox* gLastHittedLayoutNode = nullptr;
+EzUiLayoutBox* gLastFocusedLayoutNode = nullptr;
 
 void InitD2D(EzUIWindow* wnd) {
   if (!gD2DFactory)
@@ -48,41 +58,37 @@ void InitD2D(EzUIWindow* wnd) {
 }
 
 //----------------------------------------------
-// ²¼¾Ö³õÊ¼»¯
+// å¸ƒå±€åˆå§‹åŒ–
 //----------------------------------------------
 void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   // D2D
   InitD2D(wnd);
 
-  EzUITextLoader loader;
-  auto text = loader.Load(L"SimpleEzUI.ezui");
-
-  auto domRoot = EzUIDocParser::Parse(text);
+  auto domRoot = EzUIDocParser::ParseFile(L"SimpleEzUI.ezui");
   while (!domRoot) {
-    std::wcout << L"´ò¿ªuiÎÄ¼şÊ§°Ü£¬ÔÙ´Î³¢ÊÔ\n";
-
-    auto text = loader.Load(L"SimpleEzUI.ezui");
-    domRoot = EzUIDocParser::Parse(text);
+    std::wcout << L"æ‰“å¼€uiæ–‡ä»¶å¤±è´¥ï¼Œå†æ¬¡å°è¯•\n";
+    domRoot = EzUIDocParser::ParseFile(L"SimpleEzUI.ezui");
   }
 
-  auto cssText = loader.Load(L"SimpleEzUI.css");
-  auto stylesheet = EzUICssParser::Parse(cssText);
+  auto stylesheet = EzUICssParser::ParseFile(L"SimpleEzUI.css");
 
-  EzUiStyleTreeBuilder styleTreeBuiler;
-  auto styleTree = styleTreeBuiler.Build(domRoot.get(), stylesheet.get());
+  gStyleTree = EzUiStyleTreeBuilder::BuildTree(domRoot.get(), stylesheet.get());
 
-  EzUITreeBuilder uiTreeBuilder;
-  uiRoot = uiTreeBuilder.Build(domRoot.get());
-
+  gLayoutRoot = EzUiLayoutBuilder::BuildTree(gStyleTree.get());
 
 #if 0
-  // ¸ù½Úµã
+  EzUITreeBuilder uiTreeBuilder;
+  uiRoot = uiTreeBuilder.Build(domRoot.get());
+#endif
+
+#if 0
+  // æ ¹èŠ‚ç‚¹
   uiRoot = new UIElement(L"Root");
   //YGNodeStyleSetFlexDirection(uiRoot->ygNode, YGFlexDirectionRow);
   //YGNodeStyleSetWidth(uiRoot->ygNode, 800);
   //YGNodeStyleSetHeight(uiRoot->ygNode, 600);
 
-   // ×ó±ßÀ¸
+   // å·¦è¾¹æ 
   auto sidebar = new UIElement(L"Sidebar");
   sidebar->color = Color(255, 255, 0, 0);
   YGNodeStyleSetWidth(sidebar->ygNode, 200);
@@ -91,20 +97,20 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
   uiRoot->AddChild(sidebar);
 
 #if 0
-  // Ö÷ÄÚÈİÇø
+  // ä¸»å†…å®¹åŒº
   auto content = new UIElement(L"Content");
   content->color = Color(255, 0, 255, 0);
   YGNodeStyleSetFlexGrow(content->ygNode, 1);
   YGNodeStyleSetFlexDirection(content->ygNode, YGFlexDirectionColumn);
   uiRoot->AddChild(content);
 
-  // ÉÏ²¿
+  // ä¸Šéƒ¨
   auto top = new UIElement(L"Top");
   top->color = Color(255, 0, 0, 255);
   YGNodeStyleSetHeight(top->ygNode, 200);
   content->AddChild(top);
 
-  // ÏÂ²¿£¨×Ô¶¯À©Õ¹£©
+  // ä¸‹éƒ¨ï¼ˆè‡ªåŠ¨æ‰©å±•ï¼‰
   auto bottom = new UIElement(L"Bottom");
   bottom->color = Color(255, 0, 0, 0);
   YGNodeStyleSetFlexGrow(bottom->ygNode, 1);
@@ -115,25 +121,24 @@ void EngineLayout_InitUILayout(EzUIWindow* wnd) {
 }
 
 //----------------------------------------------
-// ²¼¾Ö¼ÆËã
+// å¸ƒå±€è®¡ç®—
 //----------------------------------------------
-void EngineLayout_PerformLayout(UIElement* root, float width, float height) {
-  // ÉèÖÃ¸ù²¼¾Ö´óĞ¡
-  YGNodeStyleSetWidth(root->ygNode, (float)width);
-  YGNodeStyleSetHeight(root->ygNode, (float)height);
+void EngineLayout_PerformLayout(float width, float height) {
+  // è®¾ç½®æ ¹å¸ƒå±€å¤§å°
+  YGNodeStyleSetWidth(gLayoutRoot->ygNode, (float)width);
+  YGNodeStyleSetHeight(gLayoutRoot->ygNode, (float)height);
 
-  YGNodeCalculateLayout(root->ygNode, YGUndefined, YGUndefined, YGDirectionLTR);
+  YGNodeCalculateLayout(gLayoutRoot->ygNode, YGUndefined, YGUndefined, YGDirectionLTR);
 
-  // ¸üĞÂÃ¿¸öui½ÚµãµÄrect ºÍÉî¶È
-  std::stack<UIElement*> nodeStack;
-  nodeStack.push(root);
-
+  // æ›´æ–°æ¯ä¸ªuièŠ‚ç‚¹çš„rect å’Œæ·±åº¦
+  std::stack<EzUiLayoutBox*> nodeStack;
+  nodeStack.push(gLayoutRoot);
 
   while (!nodeStack.empty()) {
     auto node = nodeStack.top();
     nodeStack.pop();
 
-    node->rect = UIElement::GetAbsoluteRect(node->ygNode);
+    node->rect = GetAbsoluteRect(node->ygNode);
 
     for (auto& child : node->children) {
       nodeStack.push(child);
@@ -142,34 +147,150 @@ void EngineLayout_PerformLayout(UIElement* root, float width, float height) {
 }
 
 void EngineLayout_Resize(EzUIWindow* wnd, int width, int height) {
-  // µ÷Õû RenderTarget ´óĞ¡
+  // è°ƒæ•´ RenderTarget å¤§å°
   if (gRenderTarget) {
     D2D1_SIZE_U size = D2D1::SizeU(width, height);
     gRenderTarget->Resize(size);
   }
 
-  if (uiRoot) {
-    EngineLayout_PerformLayout(uiRoot, (float)width, (float)height);
+  if (gLayoutRoot) {
+    EngineLayout_PerformLayout((float)width, (float)height);
     wnd->Invalidate();
   }
 }
+
+void DrawSvg(ID2D1HwndRenderTarget* rt, EzUI::RectF ygRect, const std::wstring& docText) {
+  // this requires Windows 10 1703
+  ComPtr<ID2D1DeviceContext5> dc;
+  rt->QueryInterface(dc.GetAddressOf());
+
+  // åˆ›å»ºå†…å­˜æµ
+  HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, docText.size() * sizeof(wchar_t));
+  void* pData = GlobalLock(hMem);
+  memcpy(pData, docText.data(), docText.size() * sizeof(wchar_t));
+  GlobalUnlock(hMem);
+
+  ComPtr<IStream> svgStream;
+  CreateStreamOnHGlobal(hMem, TRUE, &svgStream); // TRUE è¡¨ç¤ºé‡Šæ”¾æ—¶è‡ªåŠ¨é‡Šæ”¾å†…å­˜
+
+  ComPtr<ID2D1SvgDocument> svgDoc;
+  dc->CreateSvgDocument(svgStream.Get(), D2D1::SizeF(ygRect.width, ygRect.height), &svgDoc);
+
+#if 0
+  // open a stream in the .SVG file
+  ComPtr<IStream> svgStream;
+  SHCreateStreamOnFile(L"C:/Users/51216/Desktop/cppui/Windows-universal-samples/Samples/D2DSvgImage/cpp/drawing.svg", 0, &svgStream);
+#endif
+
+  D2D1_MATRIX_3X2_F oldTransform;
+  dc->GetTransform(&oldTransform);
+
+  // è®¾ç½®æ–°çš„å˜æ¢
+  auto transform = D2D1::Matrix3x2F::Translation(ygRect.x, ygRect.y);
+  dc->SetTransform(transform);
+
+  if (svgDoc) {
+    dc->DrawSvgDocument(svgDoc.Get());
+  }
+
+  dc->SetTransform(oldTransform);
+}
+
+void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayoutNode) {
+
+  EzUI::Rect ygRect = GetAbsoluteRect(aLayoutNode->ygNode);
+
+  auto myRect = aLayoutNode->rect;
+  auto bgColor = aLayoutNode->styleNode->bgColor;
+  auto tag = aLayoutNode->tag;
+  auto text = aLayoutNode->styleNode->text;
+  auto docText = aLayoutNode->styleNode->docText;
+
+  if (ygRect.x != myRect.x || ygRect.y != myRect.y ||
+    ygRect.width != myRect.width || ygRect.height != myRect.height) {
+    // invalid rect
+    return;
+  }
+
+  // Create a SolidBrush for the background color.
+  ID2D1SolidColorBrush* selBrush = nullptr;
+  rt->CreateSolidColorBrush(
+    D2D1::ColorF(bgColor.r, bgColor.g, bgColor.b, bgColor.a / 255.f),
+    &selBrush
+  );
+
+
+  D2D1_RECT_F rect = D2D1::RectF(ygRect.x, ygRect.y, ygRect.right(), ygRect.bottom());
+  rt->FillRectangle(rect, selBrush);
+
+  if (selBrush)
+    selBrush->Release();
+
+#if 0
+  // Draw the background image if it exists.
+  if (backgroundImage) {
+    g.DrawImage(backgroundImage, rect.left, rect.top, rect.width, rect.height);
+  }
+#endif
+  float finalOpacity = 0.5; // mIsHover ? 1 : opacity;
+
+  if (finalOpacity < 1.f) {
+    D2D1_LAYER_PARAMETERS params = D2D1::LayerParameters(
+      D2D1::InfiniteRect(), // è¦†ç›–èŒƒå›´ï¼ˆå¯ç”¨ SVG è¾¹ç•Œæ›¿ä»£ï¼‰
+      nullptr, // æ— å‡ ä½•é®ç½©
+      D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
+      D2D1::IdentityMatrix(),  // æ— å˜æ¢
+      finalOpacity, // ğŸ‘ˆ è¿™é‡Œè®¾ç½®é€æ˜åº¦ 0.0 ~ 1.0
+      nullptr,
+      D2D1_LAYER_OPTIONS_NONE
+    );
+
+    rt->PushLayer(params, nullptr);
+  }
+
+  // svgè¦è·å–ä¸Šå±‚èŠ‚ç‚¹çš„opacity
+  if (tag == L"svg") {
+    DrawSvg(rt, ygRect, docText);
+  }
+
+  if (!text.empty()) {
+    ComPtr<ID2D1SolidColorBrush> brush;
+    rt->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &brush);
+
+    // rt->DrawTextW(text.c_str(), text.length(), textFormat, &rect, brush.Get());    
+    auto textLayout = aLayoutNode->GetTextLayout();
+    if (!textLayout) {
+      textLayout = aLayoutNode->UpdateTextLayout(ygRect.width, ygRect.height);
+    }
+
+    if (textLayout != nullptr) {
+      rt->DrawTextLayout({ rect.left, rect.top }, textLayout, brush.Get());
+    }
+  }
+
+  if (finalOpacity < 1.f) {
+    rt->PopLayer();
+  }
+}
+
 
 void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
   gRenderTarget->BeginDraw();
   gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-  stack<UIElement*> uiNodeStack;
-  uiNodeStack.push(uiRoot);
+  stack<EzUiLayoutBox*> aStack;
+  aStack.push(gLayoutRoot);
 
-  while (!uiNodeStack.empty()) {
-    auto uiNode = uiNodeStack.top();
-    uiNodeStack.pop();
+  while (!aStack.empty()) {
+    auto aNode = aStack.top();
+    aStack.pop();
 
-    // »æÖÆ±ß¿ò
-    uiNode->OnRenderD2D(gRenderTarget.Get());
+    // ç»˜åˆ¶è¾¹æ¡†
+    //aNode->OnRenderD2D(gRenderTarget.Get());
+    EngineLayout_DrawLayoutNode(gRenderTarget.Get(), aNode);
 
-    for (auto it = uiNode->children.rbegin(); it != uiNode->children.rend(); ++it) {
-      uiNodeStack.push(*it);
+    for (auto it = aNode->children.rbegin(); it != aNode->children.rend(); ++it) {
+      aStack.push(*it);
     }
   }
 
@@ -178,39 +299,39 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
     gRenderTarget.Reset();
 }
 
-void EngineLayout_SetHittedUIElement(UIElement* uiNode) {
-  if (uiNode == lastHittedUiNode) {
+void EngineLayout_SetHittedUIElement(EzUiLayoutBox* node) {
+  if (node == gLastHittedLayoutNode) {
     // mouse move
     return;
   }
 
-  if (lastHittedUiNode)
-    lastHittedUiNode->OnMouseLeave();
-  lastHittedUiNode = uiNode;
-  lastHittedUiNode->OnMouseEnter();
+  if (gLastHittedLayoutNode)
+    gLastHittedLayoutNode->OnMouseLeave();
+  gLastHittedLayoutNode = node;
+  gLastHittedLayoutNode->OnMouseEnter();
 }
 
 void EngineLayout_SetFocusUIElement() {
-  if (lastFocusedUiNode == lastHittedUiNode) {
+  if (gLastFocusedLayoutNode == gLastHittedLayoutNode) {
     return;
   }
-  lastFocusedUiNode = lastHittedUiNode;
-
+  gLastFocusedLayoutNode = gLastHittedLayoutNode;
 }
+
 
 void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
   PointF mousePt(x, y);
 
   struct HitContext {
-    UIElement* node;
+    EzUiLayoutBox* node;
     int level;
   };
 
   int maxLevel = -1;
-  UIElement* maxLevelNode = nullptr;
+  EzUiLayoutBox* maxLevelNode = nullptr;
 
   stack<HitContext> uiNodeStack;
-  uiNodeStack.push({ uiRoot, 0 });
+  uiNodeStack.push({ gLayoutRoot, 0 });
 
   while (!uiNodeStack.empty()) {
     auto [uiNode, level] = uiNodeStack.top();
@@ -234,7 +355,7 @@ void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
 
   // apply hover effect  
 
-  // Èç¹ûÓĞĞèÒª Ë¢ĞÂ´°¿Ú
+  // å¦‚æœæœ‰éœ€è¦ åˆ·æ–°çª—å£
   mainWindow->Invalidate();
 }
 
@@ -245,7 +366,7 @@ void EngineLayout_LButtonDown(EzUIAppWindow* appWnd, int x, int y) {
   mainWindow->Invalidate();
 };
 
-// ¼ì²âµ½Êó±ê×ó¼üµ¯Æğ ÒªÈ¥ÊµÏÖuiÔªËØµÄclickÁË
+// æ£€æµ‹åˆ°é¼ æ ‡å·¦é”®å¼¹èµ· è¦å»å®ç°uiå…ƒç´ çš„clickäº†
 void EngineLayout_LButtonUp(EzUIAppWindow* appWnd, int x, int y) {
   EngineLayout_SetFocusUIElement();
 
