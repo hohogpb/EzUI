@@ -191,6 +191,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="layout-engine\EzUiDisplayCommand.h" />
     <ClInclude Include="layout-engine\EzUiLayoutBuilder.h" />
     <ClInclude Include="layout-engine\EzUiPainter.h" />
     <ClInclude Include="layout-engine\EzUiLayoutBox.h" />
@@ -229,6 +230,7 @@
     <ClInclude Include="common\wchar_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="layout-engine\EzUiDisplayCommand.cpp" />
     <ClCompile Include="layout-engine\EzUiLayoutBuilder.cpp" />
     <ClCompile Include="layout-engine\EzUiPainter.cpp" />
     <ClCompile Include="layout-engine\EzUiLayoutBox.cpp" />

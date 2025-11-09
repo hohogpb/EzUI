@@ -21,6 +21,7 @@ EzUI::RectF GetAbsoluteRect(YGNodeRef node) {
     parent = YGNodeGetOwner(parent);
   }
 
+
   return { left, top, width, height };
 }
 
@@ -119,4 +120,49 @@ void EzUiLayoutBox::OnMouseLeave() {
 
   mIsHover = false;
   std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
+}
+
+float EzUiLayoutBox::GetOpacity() const {
+
+  float opacity = styleNode->opacity;
+
+  // styleNode->specifiedValues
+  return opacity;
+}
+
+std::optional<EzUI::Color> EzUiLayoutBox::GetBackgroundColor() const {
+  if (styleNode) {
+    return styleNode->bgColor;
+  }
+  return std::nullopt;
+}
+
+std::optional<EzUI::Color> EzUiLayoutBox::GetBorderColor() const {
+#if 0
+  if (styleNode) {
+    auto it = styleNode->specifiedValues.find(L"border-color");
+    if (it != styleNode->specifiedValues.end()) {
+      const auto& borderValue = it->second;
+      if (borderValue.type == PropertyValue::Type::Color) {
+        return borderValue.colorValue;
+      }
+    }
+  }
+#endif
+  return std::nullopt;
+}
+
+EzUI::EdgeSizes EzUiLayoutBox::GetBorder() const {
+#if 0
+  if (styleNode) {
+    auto it = styleNode->specifiedValues.find(L"border-width");
+    if (it != styleNode->specifiedValues.end()) {
+      const auto& borderValue = it->second;
+      if (borderValue.type == PropertyValue::Type::EdgeSizes) {
+        return borderValue.edgeSizesValue;
+      }
+    }
+  }
+#endif
+  return EzUI::EdgeSizes();
 }

@@ -63,6 +63,11 @@ namespace EzUI {
     }
   };
 
-
+  struct EdgeSizes {
+    float left = 0;
+    float right = 0;
+    float top = 0;
+    float bottom = 0;
+  };
 }
 

@@ -6,6 +6,8 @@
 #include "EzUIHelper.h"
 #include <ostream>
 
+extern EzUI::Color ParseColor(const std::wstring& str);
+
 // Map from CSS property names to values.
 using PropertyMap = std::unordered_map<std::wstring, std::wstring>;
 
@@ -22,6 +24,7 @@ struct EzUiStyledNode {
   EzUI::Color bgColor{ 255 , 255, 255, 0 };
   float opacity = 1.0f;
 
+  
 };
 
 

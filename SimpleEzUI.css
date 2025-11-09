@@ -7,10 +7,10 @@ button {
     transform: scale(1.2);
   }
 
-.fullscreen-button {
+.setting-button {
   opacity: 0.9;
 }
 
-.fullscreen-button:hover {
-  opacity: 1;
-}
+  .setting-button:hover {
+    opacity: 1;
+  }

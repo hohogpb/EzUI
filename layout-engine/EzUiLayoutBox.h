@@ -59,6 +59,13 @@ public:
   // ÷ª…Ë÷√◊¥Ã¨
   void OnMouseLeave();
 
+  float GetOpacity() const;
+
+  std::optional<EzUI::Color> GetBackgroundColor() const;
+
+  std::optional<EzUI::Color> GetBorderColor() const;
+
+  EzUI::EdgeSizes GetBorder() const;
 };
 
 EzUI::RectF GetAbsoluteRect(YGNodeRef node);

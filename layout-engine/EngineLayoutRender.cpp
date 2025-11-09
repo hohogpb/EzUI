@@ -11,6 +11,7 @@
 #include "EzUICssParser.h"
 #include "EzUiStyleTreeBuilder.h"
 #include "EzUiLayoutBuilder.h"
+#include "EzUiPainter.h"
 
 using std::stack;
 using std::pair;
@@ -205,6 +206,7 @@ void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayo
   auto tag = aLayoutNode->tag;
   auto text = aLayoutNode->styleNode->text;
   auto docText = aLayoutNode->styleNode->docText;
+  auto opacity = aLayoutNode->GetOpacity();
 
   if (ygRect.x != myRect.x || ygRect.y != myRect.y ||
     ygRect.width != myRect.width || ygRect.height != myRect.height) {
@@ -232,7 +234,7 @@ void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayo
     g.DrawImage(backgroundImage, rect.left, rect.top, rect.width, rect.height);
   }
 #endif
-  float finalOpacity = 0.5; // mIsHover ? 1 : opacity;
+  float finalOpacity = opacity;
 
   if (finalOpacity < 1.f) {
     D2D1_LAYER_PARAMETERS params = D2D1::LayerParameters(
@@ -275,6 +277,10 @@ void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayo
 
 
 void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
+  auto displayList = EzUiPainter::BuildDisplayList(gLayoutRoot);
+  
+  // drawlist 怎么考虑opacity 这种
+
   gRenderTarget->BeginDraw();
   gRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 

@@ -123,6 +123,9 @@
     <ClInclude Include="layout-engine\EzUiLayoutBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="layout-engine\EzUiDisplayCommand.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleEzUI.cpp">
@@ -222,6 +225,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="layout-engine\EzUiLayoutBuilder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="layout-engine\EzUiDisplayCommand.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
