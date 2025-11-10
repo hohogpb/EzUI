@@ -19,6 +19,7 @@ using Microsoft::WRL::ComPtr;
 using namespace EzUI;
 
 extern EzUIWindow* mainWindow;
+extern HINSTANCE gInstance;
 
 ComPtr<ID2D1Factory> gD2DFactory;
 ComPtr<ID2D1HwndRenderTarget> gRenderTarget;
@@ -329,6 +330,43 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
     gRenderTarget.Reset();
 }
 
+static void EngineLayout_SetCursor(CursorType type) {
+  switch (type) {
+  case CursorType::Pointer:
+    ::SetCursor(LoadCursor(NULL, IDC_HAND));
+    break;
+  case CursorType::Text:
+    ::SetCursor(LoadCursor(NULL, IDC_IBEAM));
+    break;
+  default:
+    ::SetCursor(LoadCursor(NULL, IDC_ARROW));
+    break;
+  }
+}
+
+CursorType GetEffectiveCursor(EzUiLayoutBox* hit) {
+  auto node = hit;
+  while (node) {
+    auto aCursor = node->GetCursorType();
+    if (aCursor != CursorType::Default)
+      return aCursor;
+    node = node->parent;
+  }
+  return CursorType::Default;
+}
+
+// 检测到鼠标左键弹起 要去实现ui元素的click了
+void EngineLayout_QueryCursor(EzUIAppWindow* appWnd) {
+  auto lastHittedLayoutNode = gCurrentHoverChain.empty() ? nullptr : gCurrentHoverChain.front();
+  if (!lastHittedLayoutNode) {
+    EngineLayout_SetCursor(CursorType::Default);
+    return;
+  }
+
+  EngineLayout_SetCursor(GetEffectiveCursor(lastHittedLayoutNode));
+};
+
+
 void EngineLayout_SetHittedUIElement(EzUiLayoutBox* node) {
   // 如果命中对象没变，不做任何事
   if (node == (gCurrentHoverChain.empty() ? nullptr : gCurrentHoverChain.front())) {
@@ -357,6 +395,8 @@ void EngineLayout_SetHittedUIElement(EzUiLayoutBox* node) {
   }
 
   gCurrentHoverChain = std::move(newChain);
+
+
   // 设置hoverchain
   // std::vector<Node*> newChain;
 #if 0
@@ -378,6 +418,8 @@ void EngineLayout_SetFocusUIElement() {
   }
   gLastFocusedLayoutNode = lastHittedLayoutNode;
 }
+
+
 
 
 void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y) {
@@ -433,3 +475,4 @@ void EngineLayout_LButtonUp(EzUIAppWindow* appWnd, int x, int y) {
 
   mainWindow->Invalidate();
 };
+

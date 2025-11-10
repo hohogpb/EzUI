@@ -92,6 +92,12 @@ static void CreateWindows(HINSTANCE hInstance) {
     EngineLayout_LButtonUp(appWnd, x, y);
   };
 
+  appWindow->QueryCursor += [&](EzUIAppWindow* appWnd) {
+    // 告诉系统我们会自己处理鼠标形状
+    EngineLayout_QueryCursor(appWnd);
+    return true;
+  };
+
   appWindow->Create();
 
 }
@@ -105,11 +111,15 @@ static void HotReloadInit() {
     auto rc = mainWindow->GetClientRect();
     EngineLayout_Resize(mainWindow, rc.right - rc.left, rc.bottom - rc.top);
 
-   // DumpYogaTree(uiRoot);
+    // DumpYogaTree(uiRoot);
   });
 }
 
+HINSTANCE gInstance;
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+  gInstance = hInstance;
+
   ComScope com;
   GdiPlusScope gdip;
   WinConsole console;

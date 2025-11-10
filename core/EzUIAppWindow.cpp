@@ -294,7 +294,7 @@ static LRESULT ON_WM_NCHITTEST(EzUIAppWindow* win, HWND hwnd, UINT uMessage, WPA
   case top | left: return borderless_resize ? HTTOPLEFT : drag;
   case top | right: return borderless_resize ? HTTOPRIGHT : drag;
   case bottom | left: return borderless_resize ? HTBOTTOMLEFT : drag;
-  case bottom | right: return borderless_resize ? HTBOTTOMRIGHT : drag;
+  case bottom | right:return borderless_resize ? HTBOTTOMRIGHT : drag;
   case client: {
     ON_WM_MOUSEMOVE(win, hwnd, uMessage, wParam, MAKELPARAM(ptClient.x, ptClient.y));
     return drag;
@@ -313,6 +313,43 @@ static LRESULT ON_WM_NCACTIVATE(EzUIAppWindow* window, HWND hwnd, UINT uMessage,
 }
 
 static LRESULT ON_WM_ERASEBKGND(EzUIAppWindow* window, HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+  return false;
+}
+
+static LRESULT ON_WM_SETCURSOR(EzUIAppWindow* window, HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+  DefWindowProc(hwnd, uMessage, wParam, lParam);
+#if 0
+  // 检查鼠标是否在客户端区域
+  if (LOWORD(lParam) == HTCLIENT) {
+    ::SetCursor(LoadCursor(NULL, IDC_HAND)); // 或自定义逻辑
+    return false; // 告诉系统我们已经处理，不要默认处理
+  }
+#endif
+
+  POINT pt;
+  GetCursorPos(&pt);
+
+  RECT rcClient;
+  GetClientRect(hwnd, &rcClient);
+
+  const POINT border{
+    ::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER),
+    ::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER),
+  };
+  rcClient.left += border.x;
+  rcClient.top += border.y;
+  rcClient.right -= border.x;
+  rcClient.bottom -= border.y;
+
+  POINT ptClient = pt;
+  ScreenToClient(hwnd, &ptClient);
+
+  if (PtInRect(&rcClient, ptClient)) {
+    // ::SetCursor(LoadCursor(NULL, IDC_HAND));
+    window->QueryCursor.emit(window);
+    return true;
+  }
+
   return false;
 }
 
@@ -336,6 +373,7 @@ static unordered_map<UINT, MsgHandler> msgHandlers = {
   {WM_NCHITTEST, ON_WM_NCHITTEST},
   {WM_NCACTIVATE, ON_WM_NCACTIVATE},
   {WM_ERASEBKGND, ON_WM_ERASEBKGND},
+  {WM_SETCURSOR, ON_WM_SETCURSOR},
 };
 
 LRESULT EzUIAppWindow::OnMessage(UINT uMessage, WPARAM wParam, LPARAM lParam) {

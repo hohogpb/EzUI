@@ -28,6 +28,7 @@ public:
   Signal<EzUIAppWindow*, int, int> LButtonUp;
   Signal<EzUIAppWindow*, UINT> Input;
   Signal<EzUIAppWindow*, UINT> Tick;
+  Signal<EzUIAppWindow*> QueryCursor;
 
   bool borderless = true; // is the window currently borderless
   bool borderless_resize = true; // should the window allow resizing by dragging the borders while borderless

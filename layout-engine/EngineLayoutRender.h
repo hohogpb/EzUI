@@ -17,3 +17,5 @@ void EngineLayout_HitTest(EzUIAppWindow* appWnd, int x, int y);
 void EngineLayout_LButtonDown(EzUIAppWindow* appWnd, int x, int y) ;
 
 void EngineLayout_LButtonUp(EzUIAppWindow* appWnd, int x, int y);
+
+void EngineLayout_QueryCursor(EzUIAppWindow* appWnd) ;

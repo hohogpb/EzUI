@@ -7,6 +7,12 @@
 
 using Microsoft::WRL::ComPtr;
 
+enum class CursorType {
+  Default,
+  Pointer,    // 手型，常用于按钮
+  Text,
+};
+
 class EzUiLayoutBox {
 public:
   std::wstring tag;
@@ -64,6 +70,13 @@ public:
 
   EzUI::EdgeSizes GetBorder() const;
 
+  CursorType cursor = CursorType::Default;
+  CursorType GetCursorType() const {
+    if (tag == L"button") {
+      return CursorType::Pointer;
+    }
+    return cursor;
+  }
 };
 
 EzUI::RectF GetAbsoluteRect(YGNodeRef node);
