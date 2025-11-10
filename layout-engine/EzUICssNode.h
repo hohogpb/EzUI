@@ -7,17 +7,21 @@ struct SimpleSelector {
   std::optional<std::wstring> tagName;
   std::optional<std::wstring> id;
   std::vector<std::wstring> classNames;
-  std::optional<std::wstring> pseudo;
+  std::vector<std::wstring> pseudoClasses;  // 存储伪类，如 "hover"、"focus"
 
   std::tuple<int, int, int> Specificity() const {
     int a = id.has_value() ? 1 : 0;                // id 选择器数量
-    int b = classNames.size();                     // class 数量
+    int b = classNames.size() + pseudoClasses.size();  // class 和伪类数量
     int c = tagName.has_value() ? 1 : 0;           // tag 数量
     return { a, b, c };
   }
 
   std::vector<std::wstring> GetClassNames() const {
     return classNames;
+  }
+
+  std::vector<std::wstring> GetPseudoClasses() const {
+    return pseudoClasses;
   }
 };
 

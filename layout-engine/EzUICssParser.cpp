@@ -88,7 +88,8 @@ SimpleSelector EzUICssParser::ParseSimpleSelector() {
     } else if (c == ':') {
       // Pseudo-class or pseudo-element; skip for now.
       ConsumeChar();
-      selector.pseudo = ParseIdentifier();
+      auto aPseudo = ParseIdentifier();
+      selector.pseudoClasses.push_back(aPseudo);
     } else {
       break;
     }

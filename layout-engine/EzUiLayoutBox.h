@@ -34,7 +34,6 @@ public:
       delete child;
     }
     YGNodeFree(ygNode);
-    //delete bgImage;
   }
 
   void AddChild(EzUiLayoutBox* child) {
@@ -47,7 +46,6 @@ public:
     return mTextLayout.Get();
   }
 
-
   IDWriteTextLayout* UpdateTextLayout(float maxWidth, float maxHeight);
 
   IDWriteTextFormat* GetTextFormat();
@@ -56,7 +54,6 @@ public:
 
   void OnMouseEnter();
 
-  // ÷ª…Ë÷√◊¥Ã¨
   void OnMouseLeave();
 
   float GetOpacity() const;
@@ -66,6 +63,7 @@ public:
   std::optional<EzUI::Color> GetBorderColor() const;
 
   EzUI::EdgeSizes GetBorder() const;
+
 };
 
 EzUI::RectF GetAbsoluteRect(YGNodeRef node);

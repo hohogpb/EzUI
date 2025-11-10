@@ -112,32 +112,70 @@ void EzUiLayoutBox::OnMouseEnter() {
   auto name = styleNode ? styleNode->name : L"";
   mIsHover = true;
   std::wcout << tag << L" " << name << L"OnMouseEnter()" << std::endl;
+  // 需要触发重新渲染以应用 hover 样式
 }
 
-// 只设置状态
 void EzUiLayoutBox::OnMouseLeave() {
   auto name = styleNode ? styleNode->name : L"";
 
   mIsHover = false;
   std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
+  // 需要触发重新渲染以恢复正常样式
 }
 
 float EzUiLayoutBox::GetOpacity() const {
+  if (!styleNode) {
+    return 1.0f;
+  }
 
-  float opacity = styleNode->opacity;
+  // 如果在 hover 状态，且有 hover 样式，使用 hover 样式
+  if (mIsHover && !styleNode->hoverValues.empty()) {
+    auto opacityIt = styleNode->hoverValues.find(L"opacity");
+    if (opacityIt != styleNode->hoverValues.end()) {
+      try {
+        float hoverOpacity = std::stof(opacityIt->second);
+        // 确保透明度在 0 到 1 之间
+        return (std::max)(0.0f, (std::min)(1.0f, hoverOpacity));
+      } catch (...) {
+        // 如果转换失败，使用正常状态
+      }
+    }
+  }
 
-  // styleNode->specifiedValues
-  return opacity;
+  // 否则使用正常状态的透明度
+  return styleNode->opacity;
 }
 
 std::optional<EzUI::Color> EzUiLayoutBox::GetBackgroundColor() const {
-  if (styleNode) {
-    return styleNode->bgColor;
+  if (!styleNode) {
+    return std::nullopt;
   }
-  return std::nullopt;
+
+  // 如果在 hover 状态，且有 hover 样式，使用 hover 样式
+  if (mIsHover && !styleNode->hoverValues.empty()) {
+    auto bgColorIt = styleNode->hoverValues.find(L"background-color");
+    if (bgColorIt != styleNode->hoverValues.end()) {
+      return ParseColor(bgColorIt->second);
+    }
+  }
+
+  // 否则使用正常状态的背景色
+  return styleNode->bgColor;
 }
 
 std::optional<EzUI::Color> EzUiLayoutBox::GetBorderColor() const {
+  if (!styleNode) {
+    return std::nullopt;
+  }
+
+  // 如果在 hover 状态，且有 hover 样式，使用 hover 样式
+  if (mIsHover && !styleNode->hoverValues.empty()) {
+    auto borderColorIt = styleNode->hoverValues.find(L"border-color");
+    if (borderColorIt != styleNode->hoverValues.end()) {
+      return ParseColor(borderColorIt->second);
+    }
+  }
+
 #if 0
   if (styleNode) {
     auto it = styleNode->specifiedValues.find(L"border-color");
@@ -153,6 +191,23 @@ std::optional<EzUI::Color> EzUiLayoutBox::GetBorderColor() const {
 }
 
 EzUI::EdgeSizes EzUiLayoutBox::GetBorder() const {
+  if (!styleNode) {
+    return EzUI::EdgeSizes();
+  }
+
+  // 如果在 hover 状态，且有 hover 样式，使用 hover 样式
+  if (mIsHover && !styleNode->hoverValues.empty()) {
+    auto borderWidthIt = styleNode->hoverValues.find(L"border-width");
+    if (borderWidthIt != styleNode->hoverValues.end()) {
+      try {
+        float width = std::stof(borderWidthIt->second);
+        return EzUI::EdgeSizes{ width, width, width, width };
+      } catch (...) {
+        // 转换失败，继续使用正常状态
+      }
+    }
+  }
+
 #if 0
   if (styleNode) {
     auto it = styleNode->specifiedValues.find(L"border-width");

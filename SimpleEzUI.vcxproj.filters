@@ -254,5 +254,9 @@
     <None Include="STYLETREE_DUMP_FINAL_SUMMARY.md" />
     <None Include="STYLETREE_DUMP_INDEX.md" />
     <None Include="STYLETREE_DUMP_REFACTOR_TO_EXTERNAL_FUNCTIONS.md" />
+    <None Include="PSEUDO_CLASS_HOVER_IMPLEMENTATION.md" />
+    <None Include="PSEUDO_CLASS_HOVER_QUICK_REFERENCE.md" />
+    <None Include="GETTER_METHODS_HOVER_SUPPORT.md" />
+    <None Include="GETTER_METHODS_HOVER_QUICK_REFERENCE.md" />
   </ItemGroup>
 </Project>

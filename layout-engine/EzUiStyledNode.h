@@ -14,6 +14,8 @@ using PropertyMap = std::unordered_map<std::wstring, std::wstring>;
 struct EzUiStyledNode {
   EzUIDocNode* node;
   PropertyMap specifiedValues;
+  PropertyMap hoverValues;      // :hover 伪类的样式
+  PropertyMap focusValues;      // :focus 伪类的样式
   std::vector<std::unique_ptr<EzUiStyledNode>> children;
 
   std::wstring docText;

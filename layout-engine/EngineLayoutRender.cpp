@@ -37,8 +37,10 @@ UIElement* lastFocusedUiNode = nullptr;
 std::unique_ptr<EzUiStyledNode> gStyleTree;
 
 EzUiLayoutBox* gLayoutRoot = nullptr;
-EzUiLayoutBox* gLastHittedLayoutNode = nullptr;
+//EzUiLayoutBox* gLastHittedLayoutNode = nullptr;
 EzUiLayoutBox* gLastFocusedLayoutNode = nullptr;
+
+std::vector<EzUiLayoutBox*> gCurrentHoverChain;
 
 void InitD2D(EzUIWindow* wnd) {
   if (!gD2DFactory)
@@ -202,10 +204,11 @@ static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox
   EzUI::Rect ygRect = GetAbsoluteRect(aLayoutNode->ygNode);
 
   auto myRect = aLayoutNode->rect;
-  auto bgColor = aLayoutNode->styleNode->bgColor;
+  // ✅ 使用当前状态的背景颜色（考虑 hover）
+  auto bgColor = aLayoutNode->GetBackgroundColor();
   auto tag = aLayoutNode->tag;
-  auto text = aLayoutNode->styleNode->text;
-  auto docText = aLayoutNode->styleNode->docText;
+  auto text = aLayoutNode->styleNode ? aLayoutNode->styleNode->text : L"";
+  auto docText = aLayoutNode->styleNode ? aLayoutNode->styleNode->docText : L"";
   auto opacity = aLayoutNode->GetOpacity();
 
   if (ygRect.x != myRect.x || ygRect.y != myRect.y ||
@@ -214,26 +217,16 @@ static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox
     return;
   }
 
-  // Create a SolidBrush for the background color.
-  ID2D1SolidColorBrush* selBrush = nullptr;
-  rt->CreateSolidColorBrush(
-    D2D1::ColorF(bgColor.r, bgColor.g, bgColor.b, bgColor.a / 255.f),
-    &selBrush
-  );
+  D2D1_RECT_F rect(ygRect.x, ygRect.y, ygRect.right(), ygRect.bottom());
 
+  if (bgColor) {
+    auto [r, g, b, a] = *bgColor;
 
-  D2D1_RECT_F rect = D2D1::RectF(ygRect.x, ygRect.y, ygRect.right(), ygRect.bottom());
-  rt->FillRectangle(rect, selBrush);
+    ComPtr<ID2D1SolidColorBrush> bgBrush;
+    rt->CreateSolidColorBrush(D2D1::ColorF(r, g, b, a / 255.f), &bgBrush);
 
-  if (selBrush)
-    selBrush->Release();
-
-#if 0
-  // Draw the background image if it exists.
-  if (backgroundImage) {
-    g.DrawImage(backgroundImage, rect.left, rect.top, rect.width, rect.height);
+    rt->FillRectangle(rect, bgBrush.Get());
   }
-#endif
 
   // svg要获取上层节点的opacity
   if (tag == L"svg") {
@@ -244,7 +237,6 @@ static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox
     ComPtr<ID2D1SolidColorBrush> brush;
     rt->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &brush);
 
-    // rt->DrawTextW(text.c_str(), text.length(), textFormat, &rect, brush.Get());    
     auto textLayout = aLayoutNode->GetTextLayout();
     if (!textLayout) {
       textLayout = aLayoutNode->UpdateTextLayout(ygRect.width, ygRect.height);
@@ -338,22 +330,53 @@ void EngineLayout_RenderUI(EzUIWindow* wnd, HDC hdc) {
 }
 
 void EngineLayout_SetHittedUIElement(EzUiLayoutBox* node) {
-  if (node == gLastHittedLayoutNode) {
-    // mouse move
+  // 如果命中对象没变，不做任何事
+  if (node == (gCurrentHoverChain.empty() ? nullptr : gCurrentHoverChain.front())) {
     return;
   }
 
-  if (gLastHittedLayoutNode)
+  // 1️ 构建新的 hover 链（命中节点 + 所有父节点）
+  std::vector<EzUiLayoutBox*> newChain;
+  for (EzUiLayoutBox* n = node; n; n = n->parent) {
+    newChain.push_back(n);
+  }
+
+  // 2️ 对比旧链与新链
+  // 退出的节点：在旧链里但不在新链里
+  for (EzUiLayoutBox* oldNode : gCurrentHoverChain) {
+    if (std::find(newChain.begin(), newChain.end(), oldNode) == newChain.end()) {
+      oldNode->OnMouseLeave();
+    }
+  }
+
+  // 进入的新节点：在新链里但不在旧链里
+  for (EzUiLayoutBox* newNode : newChain) {
+    if (std::find(gCurrentHoverChain.begin(), gCurrentHoverChain.end(), newNode) == gCurrentHoverChain.end()) {
+      newNode->OnMouseEnter();
+    }
+  }
+
+  gCurrentHoverChain = std::move(newChain);
+  // 设置hoverchain
+  // std::vector<Node*> newChain;
+#if 0
+  if (gLastHittedLayoutNode) {
     gLastHittedLayoutNode->OnMouseLeave();
+  }
+
   gLastHittedLayoutNode = node;
-  gLastHittedLayoutNode->OnMouseEnter();
+  if (gLastHittedLayoutNode) {
+    gLastHittedLayoutNode->OnMouseEnter();
+  }
+#endif
 }
 
 void EngineLayout_SetFocusUIElement() {
-  if (gLastFocusedLayoutNode == gLastHittedLayoutNode) {
+  auto lastHittedLayoutNode = gCurrentHoverChain.empty() ? nullptr : gCurrentHoverChain.front();
+  if (gLastFocusedLayoutNode == lastHittedLayoutNode) {
     return;
   }
-  gLastFocusedLayoutNode = gLastHittedLayoutNode;
+  gLastFocusedLayoutNode = lastHittedLayoutNode;
 }
 
 

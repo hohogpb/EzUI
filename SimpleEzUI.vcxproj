@@ -280,7 +280,11 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="GETTER_METHODS_HOVER_QUICK_REFERENCE.md" />
+    <None Include="GETTER_METHODS_HOVER_SUPPORT.md" />
     <None Include="main.ezui" />
+    <None Include="PSEUDO_CLASS_HOVER_IMPLEMENTATION.md" />
+    <None Include="PSEUDO_CLASS_HOVER_QUICK_REFERENCE.md" />
     <None Include="SimpleEzUI.css" />
     <None Include="SimpleEzUI.ezui" />
     <None Include="STYLETREE_DUMP_FINAL_SUMMARY.md" />
