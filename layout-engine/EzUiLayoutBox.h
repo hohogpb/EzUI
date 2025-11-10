@@ -74,6 +74,8 @@ public:
   CursorType GetCursorType() const {
     if (tag == L"button") {
       return CursorType::Pointer;
+    } else if (tag == L"text") {
+      return CursorType::Text;
     }
     return cursor;
   }
