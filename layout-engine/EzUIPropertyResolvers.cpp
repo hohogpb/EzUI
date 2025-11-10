@@ -578,6 +578,11 @@ static void opacityResolver(const std::wstring& key, const std::wstring& val, Ez
   uiNode->opacity = opacity;
 }
 
+static void srcResolver(const std::wstring& key, const std::wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
+  
+}
+
+
 // 3. 声明并初始化 propertyResolverDict
 static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   // 可按需注册具体属性解析器 
@@ -635,6 +640,7 @@ static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   // ...
   { L"class", classResolver},
   { L"opacity", opacityResolver},
+  { L"src", srcResolver},
 };
 
 

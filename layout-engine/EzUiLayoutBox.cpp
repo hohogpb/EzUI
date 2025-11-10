@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "EzUiLayoutBox.h"
 
 
@@ -12,7 +12,7 @@ EzUI::RectF GetAbsoluteRect(YGNodeRef node) {
 
   while (parent) {
     YGPositionType posType = YGNodeStyleGetPositionType(parent);
-    // ¾ø¶Ô¶¨Î»µÄ¸¸½Úµã¾ÍÍ£Ö¹ÀÛ¼Ó£¨ËüÏà¶Ô¸ù»ò×ÔÉí×ø±êÏµ£©
+    // ç»å¯¹å®šä½çš„çˆ¶èŠ‚ç‚¹å°±åœæ­¢ç´¯åŠ ï¼ˆå®ƒç›¸å¯¹æ ¹æˆ–è‡ªèº«åæ ‡ç³»ï¼‰
     if (posType == YGPositionTypeAbsolute)
       break;
 
@@ -112,7 +112,7 @@ void EzUiLayoutBox::OnMouseEnter() {
   auto name = styleNode ? styleNode->name : L"";
   mIsHover = true;
   std::wcout << tag << L" " << name << L"OnMouseEnter()" << std::endl;
-  // ĞèÒª´¥·¢ÖØĞÂäÖÈ¾ÒÔÓ¦ÓÃ hover ÑùÊ½
+  // éœ€è¦è§¦å‘é‡æ–°æ¸²æŸ“ä»¥åº”ç”¨ hover æ ·å¼
 }
 
 void EzUiLayoutBox::OnMouseLeave() {
@@ -120,7 +120,7 @@ void EzUiLayoutBox::OnMouseLeave() {
 
   mIsHover = false;
   std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
-  // ĞèÒª´¥·¢ÖØĞÂäÖÈ¾ÒÔ»Ö¸´Õı³£ÑùÊ½
+  // éœ€è¦è§¦å‘é‡æ–°æ¸²æŸ“ä»¥æ¢å¤æ­£å¸¸æ ·å¼
 }
 
 float EzUiLayoutBox::GetOpacity() const {
@@ -128,33 +128,33 @@ float EzUiLayoutBox::GetOpacity() const {
     return 1.0f;
   }
 
-  // Çé¿ö 1£º×Ô¼º´¦ÓÚ hover ×´Ì¬£¬ÓĞ hover ÑùÊ½
+  // æƒ…å†µ 1ï¼šè‡ªå·±å¤„äº hover çŠ¶æ€ï¼Œæœ‰ hover æ ·å¼
   if (mIsHover && !styleNode->hoverValues.empty()) {
     auto opacityIt = styleNode->hoverValues.find(L"opacity");
     if (opacityIt != styleNode->hoverValues.end()) {
       try {
         float hoverOpacity = std::stof(opacityIt->second);
-        // È·±£Í¸Ã÷¶ÈÔÚ 0 µ½ 1 Ö®¼ä
+        // ç¡®ä¿é€æ˜åº¦åœ¨ 0 åˆ° 1 ä¹‹é—´
         return (std::max)(0.0f, (std::min)(1.0f, hoverOpacity));
       } catch (...) {
-        // Èç¹û×ª»»Ê§°Ü£¬Ê¹ÓÃÕı³£×´Ì¬
+        // å¦‚æœè½¬æ¢å¤±è´¥ï¼Œä½¿ç”¨æ­£å¸¸çŠ¶æ€
       }
     }
   }
 
-  // Çé¿ö 2£ºÕı³£×´Ì¬£¬Ê×ÏÈ¼ì²é CSS ÖĞ¶¨ÒåµÄ opacity Öµ
-  // ? ¼ì²é specifiedValues ÖĞÊÇ·ñÓĞ CSS Ìá¹©µÄ opacity
+  // æƒ…å†µ 2ï¼šæ­£å¸¸çŠ¶æ€ï¼Œé¦–å…ˆæ£€æŸ¥ CSS ä¸­å®šä¹‰çš„ opacity å€¼
+  // âœ… æ£€æŸ¥ specifiedValues ä¸­æ˜¯å¦æœ‰ CSS æä¾›çš„ opacity
   auto opacityIt = styleNode->specifiedValues.find(L"opacity");
   if (opacityIt != styleNode->specifiedValues.end()) {
     try {
       float opacity = std::stof(opacityIt->second);
       return (std::max)(0.0f, (std::min)(1.0f, opacity));
     } catch (...) {
-      // ×ª»»Ê§°Ü£¬¼ÌĞøÊ¹ÓÃ¶µµ×·½°¸
+      // è½¬æ¢å¤±è´¥ï¼Œç»§ç»­ä½¿ç”¨å…œåº•æ–¹æ¡ˆ
     }
   }
 
-  // ¶µµ×£ºÊ¹ÓÃ styleNode->opacity£¨ÓÉ opacityResolver ÉèÖÃ£©
+  // å…œåº•ï¼šä½¿ç”¨ styleNode->opacityï¼ˆç”± opacityResolver è®¾ç½®ï¼‰
   return styleNode->opacity;
 }
 
@@ -163,7 +163,7 @@ std::optional<EzUI::Color> EzUiLayoutBox::GetBackgroundColor() const {
     return std::nullopt;
   }
 
-  // Èç¹ûÔÚ hover ×´Ì¬£¬ÇÒÓĞ hover ÑùÊ½£¬Ê¹ÓÃ hover ÑùÊ½
+  // å¦‚æœåœ¨ hover çŠ¶æ€ï¼Œä¸”æœ‰ hover æ ·å¼ï¼Œä½¿ç”¨ hover æ ·å¼
   if (mIsHover && !styleNode->hoverValues.empty()) {
     auto bgColorIt = styleNode->hoverValues.find(L"background-color");
     if (bgColorIt != styleNode->hoverValues.end()) {
@@ -171,7 +171,7 @@ std::optional<EzUI::Color> EzUiLayoutBox::GetBackgroundColor() const {
     }
   }
 
-  // ·ñÔòÊ¹ÓÃÕı³£×´Ì¬µÄ±³¾°É«
+  // å¦åˆ™ä½¿ç”¨æ­£å¸¸çŠ¶æ€çš„èƒŒæ™¯è‰²
   return styleNode->bgColor;
 }
 
@@ -180,7 +180,7 @@ std::optional<EzUI::Color> EzUiLayoutBox::GetBorderColor() const {
     return std::nullopt;
   }
 
-  // Èç¹ûÔÚ hover ×´Ì¬£¬ÇÒÓĞ hover ÑùÊ½£¬Ê¹ÓÃ hover ÑùÊ½
+  // å¦‚æœåœ¨ hover çŠ¶æ€ï¼Œä¸”æœ‰ hover æ ·å¼ï¼Œä½¿ç”¨ hover æ ·å¼
   if (mIsHover && !styleNode->hoverValues.empty()) {
     auto borderColorIt = styleNode->hoverValues.find(L"border-color");
     if (borderColorIt != styleNode->hoverValues.end()) {
@@ -207,7 +207,7 @@ EzUI::EdgeSizes EzUiLayoutBox::GetBorder() const {
     return EzUI::EdgeSizes();
   }
 
-  // Èç¹ûÔÚ hover ×´Ì¬£¬ÇÒÓĞ hover ÑùÊ½£¬Ê¹ÓÃ hover ÑùÊ½
+  // å¦‚æœåœ¨ hover çŠ¶æ€ï¼Œä¸”æœ‰ hover æ ·å¼ï¼Œä½¿ç”¨ hover æ ·å¼
   if (mIsHover && !styleNode->hoverValues.empty()) {
     auto borderWidthIt = styleNode->hoverValues.find(L"border-width");
     if (borderWidthIt != styleNode->hoverValues.end()) {
@@ -215,7 +215,7 @@ EzUI::EdgeSizes EzUiLayoutBox::GetBorder() const {
         float width = std::stof(borderWidthIt->second);
         return EzUI::EdgeSizes{ width, width, width, width };
       } catch (...) {
-        // ×ª»»Ê§°Ü£¬¼ÌĞøÊ¹ÓÃÕı³£×´Ì¬
+        // è½¬æ¢å¤±è´¥ï¼Œç»§ç»­ä½¿ç”¨æ­£å¸¸çŠ¶æ€
       }
     }
   }
@@ -232,4 +232,135 @@ EzUI::EdgeSizes EzUiLayoutBox::GetBorder() const {
   }
 #endif
   return EzUI::EdgeSizes();
+}
+
+// âœ… æ–°å¢ï¼šè·å–èƒŒæ™¯å›¾ç‰‡çš„ D2D Bitmap
+ID2D1Bitmap* EzUiLayoutBox::GetBackgroundBitmap(ID2D1RenderTarget* renderTarget) {
+  if (!styleNode || !styleNode->bgImage || !renderTarget) {
+    return nullptr;
+  }
+
+  // æ£€æŸ¥ç¼“å­˜æ˜¯å¦æœ‰æ•ˆ
+  if (mCachedBitmap && mCachedImagePath == L"background") {
+    return mCachedBitmap.Get();
+  }
+
+  try {
+    // ä» Gdiplus::Image è½¬æ¢åˆ° D2D Bitmap
+    UINT width = styleNode->bgImage->GetWidth();
+    UINT height = styleNode->bgImage->GetHeight();
+
+    if (width == 0 || height == 0) {
+      return nullptr;
+    }
+
+    // å°† Image è½¬æ¢ä¸º Bitmapï¼ˆè¿™æ ·æ‰èƒ½è°ƒç”¨ LockBitsï¼‰
+    Gdiplus::Bitmap bitmap(width, height, PixelFormat32bppARGB);
+    Gdiplus::Graphics graphics(&bitmap);
+    graphics.DrawImage(styleNode->bgImage, 0, 0, width, height);
+
+    ComPtr<ID2D1Bitmap> d2dBitmap;
+    
+    // è·å–å›¾ç‰‡åƒç´ æ•°æ®
+    Gdiplus::BitmapData bitmapData;
+    Gdiplus::Rect rect(0, 0, width, height);
+    
+    if (bitmap.LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bitmapData) == Gdiplus::Ok) {
+      try {
+        // åˆ›å»º D2D Bitmap
+        D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties(
+          D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)
+        );
+        
+        HRESULT hr = renderTarget->CreateBitmap(
+          D2D1::SizeU(width, height),
+          bitmapData.Scan0,
+          bitmapData.Stride,
+          props,
+          &d2dBitmap
+        );
+        
+        if (SUCCEEDED(hr) && d2dBitmap) {
+          mCachedBitmap = d2dBitmap;
+          mCachedImagePath = L"background";
+        }
+      } catch (...) {
+        // è½¬æ¢å¤±è´¥
+      }
+      
+      bitmap.UnlockBits(&bitmapData);
+    }
+
+    return d2dBitmap.Get();
+  } catch (...) {
+    OutputDebugStringW((L"[GetBackgroundBitmap] Exception converting image\n"));
+    return nullptr;
+  }
+}
+
+// âœ… æ–°å¢ï¼šè·å– img æ ‡ç­¾çš„å›¾ç‰‡æº
+std::wstring EzUiLayoutBox::GetImageSource() const {
+  if (!styleNode) {
+    OutputDebugStringW(L"[GetImageSource] styleNode is nullptr\n");
+    return L"";
+  }
+  
+  // å¯¹äº <img> æ ‡ç­¾ï¼Œä» src å±æ€§è·å–
+  if (tag == L"img") {
+    auto srcIt = styleNode->specifiedValues.find(L"src");
+    if (srcIt != styleNode->specifiedValues.end()) {
+      OutputDebugStringW((L"[GetImageSource] Found src: " + srcIt->second + L"\n").c_str());
+      return srcIt->second;
+    } else {
+      OutputDebugStringW(L"[GetImageSource] src attribute not found in specifiedValues\n");
+      // è°ƒè¯•ï¼šåˆ—å‡ºæ‰€æœ‰ specifiedValues
+      OutputDebugStringW(L"[GetImageSource] Available specifiedValues:\n");
+      for (const auto& [key, val] : styleNode->specifiedValues) {
+        OutputDebugStringW((L"  - " + key + L": " + val + L"\n").c_str());
+      }
+    }
+  } else {
+    OutputDebugStringW((L"[GetImageSource] tag is not 'img': " + tag + L"\n").c_str());
+  }
+  
+  return L"";
+}
+
+// âœ… æ–°å¢ï¼šè·å–å›¾ç‰‡çš„åŸç”Ÿå°ºå¯¸
+bool EzUiLayoutBox::GetImageNativeSize(UINT& outWidth, UINT& outHeight) const {
+  if (tag != L"img") {
+    OutputDebugStringW((L"[GetImageNativeSize] tag is not 'img': " + tag + L"\n").c_str());
+    return false;
+  }
+
+  auto imageSrc = GetImageSource();
+  if (imageSrc.empty()) {
+    OutputDebugStringW(L"[GetImageNativeSize] imageSrc is empty\n");
+    return false;
+  }
+
+  try {
+    Gdiplus::Image image(imageSrc.c_str());
+    if (image.GetLastStatus() != Gdiplus::Ok) {
+      OutputDebugStringW((L"[GetImageNativeSize] Failed to load image: " + imageSrc + L"\n").c_str());
+      return false;
+    }
+
+    UINT width = image.GetWidth();
+    UINT height = image.GetHeight();
+
+    if (width == 0 || height == 0) {
+      OutputDebugStringW((L"[GetImageNativeSize] Invalid image size: " + imageSrc + L"\n").c_str());
+      return false;
+    }
+
+    outWidth = width;
+    outHeight = height;
+    
+    OutputDebugStringW((L"[GetImageNativeSize] Image size: " + std::to_wstring(width) + L"x" + std::to_wstring(height) + L"\n").c_str());
+    return true;
+  } catch (...) {
+    OutputDebugStringW((L"[GetImageNativeSize] Exception loading image: " + imageSrc + L"\n").c_str());
+    return false;
+  }
 }

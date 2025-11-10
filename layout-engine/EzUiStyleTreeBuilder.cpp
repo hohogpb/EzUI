@@ -13,8 +13,16 @@ std::unique_ptr<EzUiStyledNode> EzUiStyleTreeBuilder::Build(EzUIDocNode* docNode
   styled->node = docNode;
 
   if (docNode) {
-    // 解析正常状态的样式
-    styled->specifiedValues = SpecifiedValues(docNode, stylesheet, PseudoClassState::Normal);
+    // ? 首先添加 HTML 属性（最低优先级）
+    for (const auto& [attrName, attrValue] : docNode->attributes) {
+      styled->specifiedValues[attrName] = attrValue;
+    }
+
+    // 解析正常状态的样式（CSS 规则会覆盖 HTML 属性）
+    PropertyMap cssValues = SpecifiedValues(docNode, stylesheet, PseudoClassState::Normal);
+    for (const auto& [propName, propValue] : cssValues) {
+      styled->specifiedValues[propName] = propValue;
+    }
     
     // 解析 :hover 伪类样式
     styled->hoverValues = SpecifiedValues(docNode, stylesheet, PseudoClassState::Hover);

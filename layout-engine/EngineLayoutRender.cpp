@@ -200,6 +200,50 @@ void DrawSvg(ID2D1HwndRenderTarget* rt, EzUI::RectF ygRect, const std::wstring& 
   dc->SetTransform(oldTransform);
 }
 
+// ✅ 新增：绘制图片的辅助函数
+static void DrawImage(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* node, const std::wstring& imagePath) {
+  if (!node) {
+    return;
+  }
+
+  try {
+    // 使用 Gdiplus 加载图片
+    Gdiplus::Image image(imagePath.c_str());
+    if (image.GetLastStatus() != Gdiplus::Ok) {
+      OutputDebugStringW((L"[DrawImage] Failed to load image: " + imagePath + L"\n").c_str());
+      return;
+    }
+
+    // 获取图片大小
+    UINT width = image.GetWidth();
+    UINT height = image.GetHeight();
+    
+    if (width == 0 || height == 0) {
+      OutputDebugStringW((L"[DrawImage] Invalid image size: " + imagePath + L"\n").c_str());
+      return;
+    }
+
+    // 将 Image 转换为 Bitmap（这样才能调用 LockBits）
+    Gdiplus::Bitmap bitmap(width, height, PixelFormat32bppARGB);
+    Gdiplus::Graphics graphics(&bitmap);
+    graphics.DrawImage(&image, 0, 0, width, height);
+
+    // 获取 D2D Bitmap
+    auto bitmap_ptr = node->GetBackgroundBitmap(rt);
+    if (!bitmap_ptr) {
+      return;
+    }
+
+    EzUI::RectF bounds = node->rect;
+    D2D1_RECT_F destRect = D2D1::RectF(bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
+
+    // 绘制 bitmap
+    rt->DrawBitmap(bitmap_ptr, destRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
+  } catch (...) {
+    OutputDebugStringW((L"[DrawImage] Exception loading image\n"));
+  }
+}
+
 
 static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox* aLayoutNode) {
   EzUI::Rect ygRect = GetAbsoluteRect(aLayoutNode->ygNode);
@@ -220,6 +264,7 @@ static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox
 
   D2D1_RECT_F rect(ygRect.x, ygRect.y, ygRect.right(), ygRect.bottom());
 
+  // 1. 绘制背景色（如果有）
   if (bgColor) {
     auto [r, g, b, a] = *bgColor;
 
@@ -229,11 +274,72 @@ static void EngineLayout_DrawLayoutNode(ID2D1HwndRenderTarget* rt, EzUiLayoutBox
     rt->FillRectangle(rect, bgBrush.Get());
   }
 
-  // svg要获取上层节点的opacity
+  // 2. ✅ 绘制背景图片（如果有）
+  if (aLayoutNode->styleNode && aLayoutNode->styleNode->bgImage) {
+    // 直接获取背景图片的 Bitmap 并绘制
+    auto bgBitmap = aLayoutNode->GetBackgroundBitmap(rt);
+    if (bgBitmap) {
+      rt->DrawBitmap(bgBitmap, rect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
+    }
+  }
+
+  // 3. ✅ 对于 <img> 标签，绘制图片而不是文本
+  if (tag == L"img") {
+    auto imageSrc = aLayoutNode->GetImageSource();
+    if (!imageSrc.empty()) {
+      // 加载并绘制 img 标签的图片
+      try {
+        Gdiplus::Image image(imageSrc.c_str());
+        if (image.GetLastStatus() == Gdiplus::Ok) {
+          // 获取图片大小
+          UINT width = image.GetWidth();
+          UINT height = image.GetHeight();
+
+          if (width > 0 && height > 0) {
+            // 将 Image 转换为 Bitmap（这样才能调用 LockBits）
+            Gdiplus::Bitmap bitmap(width, height, PixelFormat32bppARGB);
+            Gdiplus::Graphics graphics(&bitmap);
+            graphics.DrawImage(&image, 0, 0, width, height);
+
+            // 创建 D2D Bitmap
+            ComPtr<ID2D1Bitmap> d2dBitmap;
+            Gdiplus::BitmapData bitmapData;
+            Gdiplus::Rect gdiRect(0, 0, width, height);
+
+            if (bitmap.LockBits(&gdiRect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bitmapData) == Gdiplus::Ok) {
+              D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties(
+                D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)
+              );
+
+              HRESULT hr = rt->CreateBitmap(
+                D2D1::SizeU(width, height),
+                bitmapData.Scan0,
+                bitmapData.Stride,
+                props,
+                &d2dBitmap
+              );
+
+              if (SUCCEEDED(hr) && d2dBitmap) {
+                rt->DrawBitmap(d2dBitmap.Get(), rect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
+              }
+
+              bitmap.UnlockBits(&bitmapData);
+            }
+          }
+        }
+      } catch (...) {
+        OutputDebugStringW((L"[DrawLayoutNode] Failed to draw img: " + imageSrc + L"\n").c_str());
+      }
+    }
+    return;  // img 标签只显示图片，不显示文本
+  }
+
+  // 4. svg要获取上层节点的opacity
   if (tag == L"svg") {
     DrawSvg(rt, ygRect, docText);
   }
 
+  // 5. 绘制文本
   if (!text.empty()) {
     ComPtr<ID2D1SolidColorBrush> brush;
     rt->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &brush);
@@ -418,7 +524,6 @@ void EngineLayout_SetFocusUIElement() {
   }
   gLastFocusedLayoutNode = lastHittedLayoutNode;
 }
-
 
 
 
