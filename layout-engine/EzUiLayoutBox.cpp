@@ -128,7 +128,7 @@ float EzUiLayoutBox::GetOpacity() const {
     return 1.0f;
   }
 
-  // 如果在 hover 状态，且有 hover 样式，使用 hover 样式
+  // 情况 1：自己处于 hover 状态，有 hover 样式
   if (mIsHover && !styleNode->hoverValues.empty()) {
     auto opacityIt = styleNode->hoverValues.find(L"opacity");
     if (opacityIt != styleNode->hoverValues.end()) {
@@ -142,7 +142,19 @@ float EzUiLayoutBox::GetOpacity() const {
     }
   }
 
-  // 否则使用正常状态的透明度
+  // 情况 2：正常状态，首先检查 CSS 中定义的 opacity 值
+  // ? 检查 specifiedValues 中是否有 CSS 提供的 opacity
+  auto opacityIt = styleNode->specifiedValues.find(L"opacity");
+  if (opacityIt != styleNode->specifiedValues.end()) {
+    try {
+      float opacity = std::stof(opacityIt->second);
+      return (std::max)(0.0f, (std::min)(1.0f, opacity));
+    } catch (...) {
+      // 转换失败，继续使用兜底方案
+    }
+  }
+
+  // 兜底：使用 styleNode->opacity（由 opacityResolver 设置）
   return styleNode->opacity;
 }
 

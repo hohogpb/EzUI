@@ -1,26 +1,10 @@
 button {
   transform: scale(1);
   transition: transform 0.3s ease;
-  opacity: 0.9;
+  opacity: 0.6;
 }
 
   button:hover {
     transform: scale(1.2);
     opacity: 1;
   }
-
-.setting-button  {
-  opacity: 0.9;
-}
-
-  .setting-button:hover {
-    opacity: 1;
-  }
-
-.fullscreen-button {
-  opacity: 0.9;
-}
-
-.fullscreen-button:hover {
-  opacity: 1;
-}

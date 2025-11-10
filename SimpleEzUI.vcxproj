@@ -280,6 +280,10 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="FIX_GETOPACITY_CHECKLIST.md" />
+    <None Include="FIX_GETOPACITY_CSS_VALUES.md" />
+    <None Include="FIX_GETOPACITY_FINAL_SUMMARY.md" />
+    <None Include="FIX_GETOPACITY_QUICK_REFERENCE.md" />
     <None Include="GETTER_METHODS_HOVER_QUICK_REFERENCE.md" />
     <None Include="GETTER_METHODS_HOVER_SUPPORT.md" />
     <None Include="main.ezui" />
