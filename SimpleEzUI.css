@@ -1,4 +1,4 @@
-button {
+﻿button {
   transform: scale(1);
   transition: transform 0.3s ease;
   opacity: 0.6;
@@ -8,3 +8,4 @@ button {
     transform: scale(1.2);
     opacity: 1;
   }
+

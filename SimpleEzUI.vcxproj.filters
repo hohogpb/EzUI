@@ -126,6 +126,9 @@
     <ClInclude Include="layout-engine\EzUiDisplayCommand.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="layout-engine\EzUiAnimationManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleEzUI.cpp">
@@ -230,6 +233,9 @@
     <ClCompile Include="layout-engine\EzUiDisplayCommand.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="layout-engine\EzUiAnimationManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SimpleEzUI.rc">
@@ -302,5 +308,9 @@
     <None Include="BACKGROUND_IMAGE_DEBUG_GUIDE.md" />
     <None Include="BACKGROUND_IMAGE_FIX_SUMMARY.md" />
     <None Include="BACKGROUND_IMAGE_FIXED.md" />
+    <None Include="HOVER_BACKGROUND_IMAGE_FIX.md" />
+    <None Include="HOVER_BACKGROUND_IMAGE_QUICK_FIX.md" />
+    <None Include="CSS_BACKGROUND_IMAGE_NOT_WORKING_FIX.md" />
+    <None Include="CSS_BACKGROUND_IMAGE_QUICK_REFERENCE.md" />
   </ItemGroup>
 </Project>

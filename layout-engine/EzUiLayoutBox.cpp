@@ -113,6 +113,8 @@ void EzUiLayoutBox::OnMouseEnter() {
   mIsHover = true;
   std::wcout << tag << L" " << name << L"OnMouseEnter()" << std::endl;
   // 需要触发重新渲染以应用 hover 样式
+ 
+
 }
 
 void EzUiLayoutBox::OnMouseLeave() {
@@ -121,6 +123,7 @@ void EzUiLayoutBox::OnMouseLeave() {
   mIsHover = false;
   std::wcout << tag << L" " << name << L"OnMouseLeave()" << std::endl;
   // 需要触发重新渲染以恢复正常样式
+
 }
 
 float EzUiLayoutBox::GetOpacity() const {
@@ -236,9 +239,27 @@ EzUI::EdgeSizes EzUiLayoutBox::GetBorder() const {
 
 // ✅ 新增：获取背景图片的 D2D Bitmap
 ID2D1Bitmap* EzUiLayoutBox::GetBackgroundBitmap(ID2D1RenderTarget* renderTarget) {
-  if (!styleNode || !styleNode->bgImage || !renderTarget) {
+  if (!styleNode || !renderTarget) {
     return nullptr;
   }
+
+  // ✅ 优先检查 hover 状态下的背景图片
+  Gdiplus::Image* imageToUse = nullptr;
+  
+  if (mIsHover && !styleNode->hoverValues.empty()) {
+    auto bgImageIt = styleNode->hoverValues.find(L"background-image");
+    if (bgImageIt != styleNode->hoverValues.end() && !bgImageIt->second.empty()) {
+      // TODO: 从 hoverValues 中的 background-image 值加载图片
+      // 这需要额外的解析逻辑
+    }
+  }
+
+  // 如果没有 hover 背景图片，使用默认背景图片
+  if (!styleNode->bgImage) {
+    return nullptr;
+  }
+
+  imageToUse = styleNode->bgImage;
 
   // 检查缓存是否有效
   if (mCachedBitmap && mCachedImagePath == L"background") {
@@ -247,8 +268,8 @@ ID2D1Bitmap* EzUiLayoutBox::GetBackgroundBitmap(ID2D1RenderTarget* renderTarget)
 
   try {
     // 从 Gdiplus::Image 转换到 D2D Bitmap
-    UINT width = styleNode->bgImage->GetWidth();
-    UINT height = styleNode->bgImage->GetHeight();
+    UINT width = imageToUse->GetWidth();
+    UINT height = imageToUse->GetHeight();
 
     if (width == 0 || height == 0) {
       return nullptr;
@@ -257,7 +278,7 @@ ID2D1Bitmap* EzUiLayoutBox::GetBackgroundBitmap(ID2D1RenderTarget* renderTarget)
     // 将 Image 转换为 Bitmap（这样才能调用 LockBits）
     Gdiplus::Bitmap bitmap(width, height, PixelFormat32bppARGB);
     Gdiplus::Graphics graphics(&bitmap);
-    graphics.DrawImage(styleNode->bgImage, 0, 0, width, height);
+    graphics.DrawImage(imageToUse, 0, 0, width, height);
 
     ComPtr<ID2D1Bitmap> d2dBitmap;
     

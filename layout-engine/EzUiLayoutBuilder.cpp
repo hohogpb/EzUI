@@ -140,7 +140,13 @@ EzUiLayoutBox* EzUiLayoutBuilder::BuildNode(EzUiStyledNode* styleNode) {
 
   EzUIPropertyResolvers resolvers;
 
+  // ? 首先应用 HTML 属性（最低优先级）
   for (auto& [keyRaw, valueRaw] : docNode->attributes) {
+    resolvers.Resolve(keyRaw, valueRaw, styleNode, ygNode);
+  }
+
+  // ? 然后应用 CSS 样式值（覆盖 HTML 属性）
+  for (const auto& [keyRaw, valueRaw] : styleNode->specifiedValues) {
     resolvers.Resolve(keyRaw, valueRaw, styleNode, ygNode);
   }
 
@@ -166,6 +172,11 @@ EzUiLayoutBox* EzUiLayoutBuilder::BuildNode(EzUiStyledNode* styleNode) {
 
   return layoutNode;
 }
+
+
+
+
+
 
 
 

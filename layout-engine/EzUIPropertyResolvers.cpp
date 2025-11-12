@@ -582,6 +582,14 @@ static void srcResolver(const std::wstring& key, const std::wstring& val, EzUiSt
   
 }
 
+static void transitionResolver(const std::wstring& key, const std::wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
+  
+}
+
+static void transformResolver(const std::wstring& key, const std::wstring& val, EzUiStyledNode* uiNode, YGNodeRef ygNode) {
+  
+}
+
 
 // 3. 声明并初始化 propertyResolverDict
 static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
@@ -641,6 +649,8 @@ static unordered_map<wstring, PropertyResolver> propertyResolverDict = {
   { L"class", classResolver},
   { L"opacity", opacityResolver},
   { L"src", srcResolver},
+   { L"transition", transitionResolver},
+   { L"transform", transformResolver},
 };
 
 

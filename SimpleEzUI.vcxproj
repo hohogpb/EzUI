@@ -191,6 +191,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="layout-engine\EzUiAnimationManager.h" />
     <ClInclude Include="layout-engine\EzUiDisplayCommand.h" />
     <ClInclude Include="layout-engine\EzUiLayoutBuilder.h" />
     <ClInclude Include="layout-engine\EzUiPainter.h" />
@@ -230,6 +231,7 @@
     <ClInclude Include="common\wchar_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="layout-engine\EzUiAnimationManager.cpp" />
     <ClCompile Include="layout-engine\EzUiDisplayCommand.cpp" />
     <ClCompile Include="layout-engine\EzUiLayoutBuilder.cpp" />
     <ClCompile Include="layout-engine\EzUiPainter.cpp" />
@@ -297,12 +299,16 @@
     <None Include="BUGFIX_IMG_SRC_COMPLETE_SUMMARY.md" />
     <None Include="BUGFIX_IMG_SRC_QUICK_REFERENCE.md" />
     <None Include="BUGFIX_IMG_SRC_VERIFICATION_CHECKLIST.md" />
+    <None Include="CSS_BACKGROUND_IMAGE_NOT_WORKING_FIX.md" />
+    <None Include="CSS_BACKGROUND_IMAGE_QUICK_REFERENCE.md" />
     <None Include="FIX_GETOPACITY_CHECKLIST.md" />
     <None Include="FIX_GETOPACITY_CSS_VALUES.md" />
     <None Include="FIX_GETOPACITY_FINAL_SUMMARY.md" />
     <None Include="FIX_GETOPACITY_QUICK_REFERENCE.md" />
     <None Include="GETTER_METHODS_HOVER_QUICK_REFERENCE.md" />
     <None Include="GETTER_METHODS_HOVER_SUPPORT.md" />
+    <None Include="HOVER_BACKGROUND_IMAGE_FIX.md" />
+    <None Include="HOVER_BACKGROUND_IMAGE_QUICK_FIX.md" />
     <None Include="IMAGE_SUPPORT_COMPLETE_SUMMARY.md" />
     <None Include="IMAGE_SUPPORT_DOCUMENTATION_INDEX.md" />
     <None Include="IMAGE_SUPPORT_FINAL_SUMMARY.md" />
